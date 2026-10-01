@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
+import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
 function AdminSiteSettings() {
+    const { t } = useLanguage();
+
     const [settings, setSettings] = useState([]);
     const [values, setValues] = useState({});
     const [loading, setLoading] = useState(true);
@@ -28,7 +31,7 @@ function AdminSiteSettings() {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                    "Failed to load settings"
+                        t("adminSettings.loadError")
                 );
             }
 
@@ -102,14 +105,14 @@ function AdminSiteSettings() {
                 if (!response.ok) {
                     throw new Error(
                         data.message ||
-                        `Failed to update ${setting.setting_key}`
+                            t("adminSettings.saveError", {
+                                key: setting.setting_key
+                            })
                     );
                 }
             }
 
-            setMessage(
-                "Site settings saved successfully."
-            );
+            setMessage(t("adminSettings.saved"));
 
             await loadSettings();
 
@@ -127,17 +130,11 @@ function AdminSiteSettings() {
     };
 
     const getLabel = (key) => {
-        const labels = {
-            site_name: "Site Name",
-            site_description: "Site Description",
-            contact_email: "Contact Email",
-            logo_url: "Logo URL",
-            facebook_url: "Facebook URL",
-            x_url: "X / Twitter URL",
-            telegram_url: "Telegram URL"
-        };
+        const labelKey = `adminSettings.field.${key}`;
 
-        return labels[key] || key;
+        const translated = t(labelKey);
+
+        return translated === labelKey ? key : translated;
     };
 
     return (
@@ -148,11 +145,11 @@ function AdminSiteSettings() {
                 <div>
 
                     <h1>
-                        Site Settings
+                        {t("adminSettings.title")}
                     </h1>
 
                     <p>
-                        Manage the information and links displayed across the website.
+                        {t("adminSettings.subtitle")}
                     </p>
 
                 </div>
@@ -164,7 +161,7 @@ function AdminSiteSettings() {
                 {loading ? (
 
                     <div className="admin-table-message">
-                        Loading settings...
+                        {t("adminSettings.loading")}
                     </div>
 
                 ) : (
@@ -190,7 +187,7 @@ function AdminSiteSettings() {
                         <div className="form-section">
 
                             <h2>
-                                General Settings
+                                {t("adminSettings.general")}
                             </h2>
 
                             {settings
@@ -256,7 +253,7 @@ function AdminSiteSettings() {
                         <div className="form-section">
 
                             <h2>
-                                Social Media
+                                {t("adminSettings.social")}
                             </h2>
 
                             {settings
@@ -321,8 +318,8 @@ function AdminSiteSettings() {
                                 disabled={saving}
                             >
                                 {saving
-                                    ? "Saving..."
-                                    : "Save Settings"}
+                                    ? t("adminSettings.saving")
+                                    : t("adminSettings.save")}
                             </button>
 
                         </div>

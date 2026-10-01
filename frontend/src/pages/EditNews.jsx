@@ -5,11 +5,13 @@ import {
     useParams
 } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
+import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
 function EditNews() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { t } = useLanguage();
 
     const [categories, setCategories] = useState([]);
     const [media, setMedia] = useState([]);
@@ -81,21 +83,21 @@ function EditNews() {
                 if (!articleResponse.ok) {
                     throw new Error(
                         articleData.message ||
-                        "Failed to load article."
+                            t("editNews.loadFailed")
                     );
                 }
 
                 if (!categoriesResponse.ok) {
                     throw new Error(
                         categoriesData.message ||
-                        "Failed to load categories."
+                            t("editNews.loadCategoriesFailed")
                     );
                 }
 
                 if (!mediaResponse.ok) {
                     throw new Error(
                         mediaData.message ||
-                        "Failed to load media."
+                            t("editNews.loadMediaFailed")
                     );
                 }
 
@@ -147,7 +149,7 @@ function EditNews() {
 
                 setError(
                     error.message ||
-                    "Unable to load the article."
+                        t("editNews.loadError")
                 );
             } finally {
                 setLoading(false);
@@ -202,17 +204,17 @@ function EditNews() {
         setSuccess("");
 
         if (!categoryId) {
-            setError("Please select a category.");
+            setError(t("editNews.validationCategory"));
             return;
         }
 
         if (!title.trim()) {
-            setError("Article title is required.");
+            setError(t("editNews.validationTitle"));
             return;
         }
 
         if (!content.trim()) {
-            setError("Article content is required.");
+            setError(t("editNews.validationContent"));
             return;
         }
 
@@ -250,13 +252,11 @@ function EditNews() {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                    "Failed to update article."
+                        t("editNews.updateError")
                 );
             }
 
-            setSuccess(
-                "Article updated successfully."
-            );
+            setSuccess(t("editNews.updated"));
 
             setTimeout(() => {
                 navigate("/admin/news");
@@ -269,7 +269,7 @@ function EditNews() {
 
             setError(
                 error.message ||
-                "Unable to update the article."
+                    t("editNews.updateError")
             );
         } finally {
             setSaving(false);
@@ -287,12 +287,11 @@ function EditNews() {
                     <div className="edit-news-spinner"></div>
 
                     <h2>
-                        Loading article...
+                        {t("editNews.loading")}
                     </h2>
 
                     <p>
-                        Please wait while the article
-                        is being loaded.
+                        {t("editNews.loadingText")}
                     </p>
                 </div>
             </AdminLayout>
@@ -312,17 +311,15 @@ function EditNews() {
                     <div className="edit-news-header-content">
 
                         <span className="edit-news-eyebrow">
-                            CONTENT MANAGEMENT
+                            {t("editNews.eyebrow")}
                         </span>
 
                         <h1>
-                            Edit Article
+                            {t("editNews.title")}
                         </h1>
 
                         <p>
-                            Update your article content,
-                            media, category, and publishing
-                            settings.
+                            {t("editNews.subtitle")}
                         </p>
 
                     </div>
@@ -332,11 +329,10 @@ function EditNews() {
                         className="edit-news-back"
                     >
                         <span>←</span>
-                        Back to News
+                        {t("editNews.backToNews")}
                     </Link>
 
                 </div>
-
 
                 {/* ==================================================
                     ALERTS
@@ -356,7 +352,7 @@ function EditNews() {
                         <button
                             type="button"
                             onClick={() => setError("")}
-                            aria-label="Close error"
+                            aria-label={t("admin.closeError")}
                         >
                             ×
                         </button>
@@ -377,7 +373,6 @@ function EditNews() {
 
                     </div>
                 )}
-
 
                 {/* ==================================================
                     FORM
@@ -408,18 +403,15 @@ function EditNews() {
 
                                 <div>
                                     <h2>
-                                        Article Information
+                                        {t("editNews.infoTitle")}
                                     </h2>
 
                                     <p>
-                                        Update the main
-                                        information for this
-                                        article.
+                                        {t("editNews.infoText")}
                                     </p>
                                 </div>
 
                             </div>
-
 
                             {/* TITLE */}
 
@@ -428,7 +420,7 @@ function EditNews() {
                                 <div className="edit-news-label-row">
 
                                     <label htmlFor="title">
-                                        Article Title
+                                        {t("editNews.titleLabel")}
                                     </label>
 
                                     <span>
@@ -447,19 +439,20 @@ function EditNews() {
                                         )
                                     }
                                     maxLength={200}
-                                    placeholder="Enter article headline"
+                                    placeholder={t(
+                                        "editNews.titlePlaceholder"
+                                    )}
                                     required
                                 />
 
                             </div>
-
 
                             {/* CATEGORY */}
 
                             <div className="edit-news-field">
 
                                 <label htmlFor="category">
-                                    Category
+                                    {t("editNews.categoryLabel")}
                                 </label>
 
                                 <select
@@ -474,7 +467,9 @@ function EditNews() {
                                 >
 
                                     <option value="">
-                                        Select a category
+                                        {t(
+                                            "editNews.selectCategory"
+                                        )}
                                     </option>
 
                                     {categories.map(
@@ -496,7 +491,6 @@ function EditNews() {
 
                             </div>
 
-
                             {/* SUMMARY */}
 
                             <div className="edit-news-field">
@@ -504,7 +498,7 @@ function EditNews() {
                                 <div className="edit-news-label-row">
 
                                     <label htmlFor="summary">
-                                        Summary
+                                        {t("editNews.summaryLabel")}
                                     </label>
 
                                     <span>
@@ -523,11 +517,12 @@ function EditNews() {
                                     }
                                     maxLength={500}
                                     rows={4}
-                                    placeholder="Write a short summary of the article..."
+                                    placeholder={t(
+                                        "editNews.summaryPlaceholder"
+                                    )}
                                 />
 
                             </div>
-
 
                             {/* CONTENT */}
 
@@ -536,11 +531,17 @@ function EditNews() {
                                 <div className="edit-news-label-row">
 
                                     <label htmlFor="content">
-                                        Article Content
+                                        {t("editNews.contentLabel")}
                                     </label>
 
                                     <span>
-                                        {content.length.toLocaleString()} characters
+                                        {t(
+                                            "editNews.characters",
+                                            {
+                                                count:
+                                                    content.length
+                                            }
+                                        )}
                                     </span>
 
                                 </div>
@@ -555,14 +556,15 @@ function EditNews() {
                                         )
                                     }
                                     rows={18}
-                                    placeholder="Write the full article content..."
+                                    placeholder={t(
+                                        "editNews.contentPlaceholder"
+                                    )}
                                     required
                                 />
 
                             </div>
 
                         </section>
-
 
                         {/* ==================================================
                             FEATURED IMAGE
@@ -578,25 +580,22 @@ function EditNews() {
 
                                 <div>
                                     <h2>
-                                        Featured Image
+                                        {t("editNews.imageTitle")}
                                     </h2>
 
                                     <p>
-                                        Choose an image from
-                                        the media library or
-                                        provide an image URL.
+                                        {t("editNews.imageText")}
                                     </p>
                                 </div>
 
                             </div>
-
 
                             {/* MEDIA LIBRARY */}
 
                             <div className="edit-news-field">
 
                                 <label htmlFor="media">
-                                    Media Library
+                                    {t("editNews.mediaLabel")}
                                 </label>
 
                                 <select
@@ -608,7 +607,7 @@ function EditNews() {
                                 >
 
                                     <option value="">
-                                        Select an image
+                                        {t("editNews.selectMedia")}
                                     </option>
 
                                     {media.map(
@@ -624,7 +623,12 @@ function EditNews() {
                                                 {
                                                     item.original_name ||
                                                     item.file_name ||
-                                                    `Media ${item.media_id}`
+                                                    t(
+                                                        "editNews.mediaFallback",
+                                                        {
+                                                            id: item.media_id
+                                                        }
+                                                    )
                                                 }
                                             </option>
                                         )
@@ -633,7 +637,6 @@ function EditNews() {
                                 </select>
 
                             </div>
-
 
                             {/* IMAGE PREVIEW */}
 
@@ -653,7 +656,9 @@ function EditNews() {
                                             alt={
                                                 imageCaption ||
                                                 title ||
-                                                "Featured"
+                                                t(
+                                                    "adminNews.featured"
+                                                )
                                             }
                                             onError={(event) => {
                                                 event.currentTarget.style.display =
@@ -666,13 +671,15 @@ function EditNews() {
                                     <div className="edit-news-image-preview-info">
 
                                         <strong>
-                                            Current Featured Image
+                                            {t(
+                                                "editNews.currentImage"
+                                            )}
                                         </strong>
 
                                         <p>
-                                            This image will
-                                            appear with the
-                                            published article.
+                                            {t(
+                                                "editNews.currentImageText"
+                                            )}
                                         </p>
 
                                     </div>
@@ -680,13 +687,12 @@ function EditNews() {
                                 </div>
                             )}
 
-
                             {/* IMAGE URL */}
 
                             <div className="edit-news-field">
 
                                 <label htmlFor="featuredImage">
-                                    Image URL
+                                    {t("editNews.imageUrl")}
                                 </label>
 
                                 <input
@@ -703,13 +709,12 @@ function EditNews() {
 
                             </div>
 
-
                             {/* CAPTION */}
 
                             <div className="edit-news-field">
 
                                 <label htmlFor="imageCaption">
-                                    Image Caption
+                                    {t("editNews.captionLabel")}
                                 </label>
 
                                 <input
@@ -721,7 +726,9 @@ function EditNews() {
                                             event.target.value
                                         )
                                     }
-                                    placeholder="Describe the featured image..."
+                                    placeholder={t(
+                                        "editNews.captionPlaceholder"
+                                    )}
                                 />
 
                             </div>
@@ -729,7 +736,6 @@ function EditNews() {
                         </section>
 
                     </div>
-
 
                     {/* ==================================================
                         SIDEBAR
@@ -749,21 +755,22 @@ function EditNews() {
 
                                 <div>
                                     <h3>
-                                        Publishing
+                                        {t("editNews.publishing")}
                                     </h3>
 
                                     <p>
-                                        Control article visibility
+                                        {t(
+                                            "editNews.publishingText"
+                                        )}
                                     </p>
                                 </div>
 
                             </div>
 
-
                             <div className="edit-news-field">
 
                                 <label htmlFor="status">
-                                    Status
+                                    {t("editNews.status")}
                                 </label>
 
                                 <select
@@ -777,17 +784,16 @@ function EditNews() {
                                 >
 
                                     <option value="draft">
-                                        Draft
+                                        {t("editNews.draft")}
                                     </option>
 
                                     <option value="published">
-                                        Published
+                                        {t("editNews.published")}
                                     </option>
 
                                 </select>
 
                             </div>
-
 
                             {/* FEATURED TOGGLE */}
 
@@ -808,12 +814,15 @@ function EditNews() {
                                 <span className="edit-news-toggle-content">
 
                                     <strong>
-                                        Featured Article
+                                        {t(
+                                            "editNews.featuredArticle"
+                                        )}
                                     </strong>
 
                                     <small>
-                                        Highlight this article
-                                        on the homepage.
+                                        {t(
+                                            "editNews.featuredText"
+                                        )}
                                     </small>
 
                                 </span>
@@ -821,7 +830,6 @@ function EditNews() {
                             </label>
 
                         </section>
-
 
                         {/* BEFORE SAVING */}
 
@@ -835,11 +843,13 @@ function EditNews() {
 
                                 <div>
                                     <h3>
-                                        Before Saving
+                                        {t("editNews.beforeSaving")}
                                     </h3>
 
                                     <p>
-                                        Quick checklist
+                                        {t(
+                                            "editNews.beforeSavingText"
+                                        )}
                                     </p>
                                 </div>
 
@@ -848,25 +858,23 @@ function EditNews() {
                             <ul>
 
                                 <li>
-                                    Check the article title.
+                                    {t("editNews.check1")}
                                 </li>
 
                                 <li>
-                                    Make sure the correct
-                                    category is selected.
+                                    {t("editNews.check2")}
                                 </li>
 
                                 <li>
-                                    Review the article content.
+                                    {t("editNews.check3")}
                                 </li>
 
                                 <li>
-                                    Verify the publishing
-                                    status.
+                                    {t("editNews.check4")}
                                 </li>
 
                                 <li>
-                                    Check the featured image.
+                                    {t("editNews.check5")}
                                 </li>
 
                             </ul>
@@ -874,7 +882,6 @@ function EditNews() {
                         </section>
 
                     </aside>
-
 
                     {/* ==================================================
                         ACTIONS
@@ -886,7 +893,7 @@ function EditNews() {
                             to="/admin/news"
                             className="edit-news-cancel"
                         >
-                            Cancel
+                            {t("editNews.cancel")}
                         </Link>
 
                         <button
@@ -899,11 +906,11 @@ function EditNews() {
                                 <>
                                     <span className="edit-news-button-spinner"></span>
 
-                                    Saving Changes...
+                                    {t("editNews.saving")}
                                 </>
                             ) : (
                                 <>
-                                    Save Changes
+                                    {t("editNews.save")}
 
                                     <span>
                                         →

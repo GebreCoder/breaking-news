@@ -15,6 +15,7 @@ import AdminSiteSettings from "./pages/AdminSiteSettings";
 import AdminLogin from "./pages/AdminLogin";
 import EditNews from "./pages/EditNews";
 import "./App.css";
+import "./styles/language.css";
 
 function App() {
     return (
