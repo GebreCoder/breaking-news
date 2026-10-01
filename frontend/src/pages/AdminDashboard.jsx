@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
+import { useLanguage } from "../i18n/useLanguage.js";
 
 function AdminDashboard() {
+    const { t } = useLanguage();
+
     const admin = JSON.parse(
         localStorage.getItem("admin") || "null"
     );
@@ -16,13 +19,13 @@ function AdminDashboard() {
             <header className="admin-topbar">
                 <div>
                     <span className="admin-page-eyebrow">
-                        ADMINISTRATION
+                        {t("dashboard.eyebrow")}
                     </span>
 
-                    <h1>Dashboard</h1>
+                    <h1>{t("dashboard.title")}</h1>
 
                     <p>
-                        Manage and monitor your BREAKING NEWS website.
+                        {t("dashboard.subtitle")}
                     </p>
                 </div>
             </header>
@@ -34,17 +37,16 @@ function AdminDashboard() {
 
                     <div className="dashboard-welcome-content">
                         <span className="dashboard-welcome-label">
-                            ADMINISTRATOR
+                            {t("dashboard.welcomeLabel")}
                         </span>
 
                         <h2>
-                            Welcome back
+                            {t("dashboard.welcome")}
                             {firstName ? `, ${firstName}` : ""}
                         </h2>
 
                         <p>
-                            Manage your news, categories, breaking alerts,
-                            media, and website settings from one place.
+                            {t("dashboard.welcomeText")}
                         </p>
                     </div>
 
@@ -59,10 +61,16 @@ function AdminDashboard() {
 
                     <div className="dashboard-section-header">
                         <div>
-                            <h2>Content Management</h2>
+                            <h2>
+                                {t(
+                                    "dashboard.contentManagement"
+                                )}
+                            </h2>
 
                             <p>
-                                Quick access to your administration tools.
+                                {t(
+                                    "dashboard.contentManagementText"
+                                )}
                             </p>
                         </div>
                     </div>
@@ -79,23 +87,22 @@ function AdminDashboard() {
                                 </span>
 
                                 <span className="dashboard-card-label">
-                                    NEWS
+                                    {t("dashboard.cardNewsLabel")}
                                 </span>
                             </div>
 
                             <div className="dashboard-card-body">
                                 <h3>
-                                    News Management
+                                    {t("dashboard.cardNewsTitle")}
                                 </h3>
 
                                 <p>
-                                    Create, edit, publish, and manage
-                                    news articles.
+                                    {t("dashboard.cardNewsText")}
                                 </p>
                             </div>
 
                             <div className="dashboard-card-action">
-                                Manage News
+                                {t("dashboard.cardNewsAction")}
                                 <span>→</span>
                             </div>
                         </Link>
@@ -110,23 +117,24 @@ function AdminDashboard() {
                                 </span>
 
                                 <span className="dashboard-card-label">
-                                    ALERTS
+                                    {t(
+                                        "dashboard.cardAlertsLabel"
+                                    )}
                                 </span>
                             </div>
 
                             <div className="dashboard-card-body">
                                 <h3>
-                                    Breaking News
+                                    {t("dashboard.cardAlertsTitle")}
                                 </h3>
 
                                 <p>
-                                    Manage urgent headlines and breaking
-                                    news alerts.
+                                    {t("dashboard.cardAlertsText")}
                                 </p>
                             </div>
 
                             <div className="dashboard-card-action">
-                                Manage Alerts
+                                {t("dashboard.cardAlertsAction")}
                                 <span>→</span>
                             </div>
                         </Link>
@@ -141,23 +149,24 @@ function AdminDashboard() {
                                 </span>
 
                                 <span className="dashboard-card-label">
-                                    CONTENT
+                                    {t(
+                                        "dashboard.cardContentLabel"
+                                    )}
                                 </span>
                             </div>
 
                             <div className="dashboard-card-body">
                                 <h3>
-                                    Categories
+                                    {t("dashboard.cardContentTitle")}
                                 </h3>
 
                                 <p>
-                                    Organize your news content with
-                                    categories.
+                                    {t("dashboard.cardContentText")}
                                 </p>
                             </div>
 
                             <div className="dashboard-card-action">
-                                Manage Categories
+                                {t("dashboard.cardContentAction")}
                                 <span>→</span>
                             </div>
                         </Link>
@@ -172,23 +181,22 @@ function AdminDashboard() {
                                 </span>
 
                                 <span className="dashboard-card-label">
-                                    MEDIA
+                                    {t("dashboard.cardMediaLabel")}
                                 </span>
                             </div>
 
                             <div className="dashboard-card-body">
                                 <h3>
-                                    Media Library
+                                    {t("dashboard.cardMediaTitle")}
                                 </h3>
 
                                 <p>
-                                    Upload and manage images used across
-                                    your news website.
+                                    {t("dashboard.cardMediaText")}
                                 </p>
                             </div>
 
                             <div className="dashboard-card-action">
-                                Open Media Library
+                                {t("dashboard.cardMediaAction")}
                                 <span>→</span>
                             </div>
                         </Link>
@@ -203,23 +211,24 @@ function AdminDashboard() {
                                 </span>
 
                                 <span className="dashboard-card-label">
-                                    SETTINGS
+                                    {t(
+                                        "dashboard.cardSettingsLabel"
+                                    )}
                                 </span>
                             </div>
 
                             <div className="dashboard-card-body">
                                 <h3>
-                                    Site Settings
+                                    {t("dashboard.cardSettingsTitle")}
                                 </h3>
 
                                 <p>
-                                    Manage website information, links,
-                                    and configuration.
+                                    {t("dashboard.cardSettingsText")}
                                 </p>
                             </div>
 
                             <div className="dashboard-card-action">
-                                Open Settings
+                                {t("dashboard.cardSettingsAction")}
                                 <span>→</span>
                             </div>
                         </Link>

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
+import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
 function AdminBreakingNews() {
+    const { t, locale } = useLanguage();
+
     const [breakingNews, setBreakingNews] = useState([]);
     const [news, setNews] = useState([]);
 
@@ -46,14 +49,14 @@ function AdminBreakingNews() {
             if (!newsResponse.ok) {
                 throw new Error(
                     newsData.message ||
-                    "Failed to load news"
+                        t("adminBreaking.loadNewsError")
                 );
             }
 
             if (!breakingResponse.ok) {
                 throw new Error(
                     breakingData.message ||
-                    "Failed to load breaking news"
+                        t("adminBreaking.loadError")
                 );
             }
 
@@ -82,7 +85,7 @@ function AdminBreakingNews() {
         setError("");
 
         if (!headline.trim()) {
-            setError("Headline is required.");
+            setError(t("adminBreaking.headlineRequired"));
             return;
         }
 
@@ -91,9 +94,7 @@ function AdminBreakingNews() {
             endsAt &&
             new Date(startsAt) >= new Date(endsAt)
         ) {
-            setError(
-                "End time must be later than start time."
-            );
+            setError(t("adminBreaking.timeError"));
             return;
         }
 
@@ -135,12 +136,12 @@ function AdminBreakingNews() {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                    "Failed to create breaking news"
+                        t("adminBreaking.createError")
                 );
             }
 
             setMessage(
-                "Breaking news created successfully."
+                t("adminBreaking.createSuccess")
             );
 
             setHeadline("");
@@ -192,12 +193,12 @@ function AdminBreakingNews() {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                    "Failed to update breaking news"
+                        t("adminBreaking.updateError")
                 );
             }
 
             setMessage(
-                "Breaking news status updated."
+                t("adminBreaking.statusUpdated")
             );
 
             await loadData();
@@ -213,7 +214,7 @@ function AdminBreakingNews() {
 
     const handleDelete = async (id) => {
         const confirmed = window.confirm(
-            "Are you sure you want to delete this breaking news item?"
+            t("adminBreaking.deleteConfirm")
         );
 
         if (!confirmed) {
@@ -241,12 +242,12 @@ function AdminBreakingNews() {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                    "Failed to delete breaking news"
+                        t("adminBreaking.deleteError")
                 );
             }
 
             setMessage(
-                "Breaking news deleted successfully."
+                t("adminBreaking.deleteSuccess")
             );
 
             await loadData();
@@ -265,14 +266,15 @@ function AdminBreakingNews() {
             <header className="admin-topbar admin-breaking-topbar">
                 <div>
                     <span className="admin-page-eyebrow">
-                        LIVE CONTENT
+                        {t("adminBreaking.eyebrow")}
                     </span>
 
-                    <h1>Breaking News</h1>
+                    <h1>
+                        {t("adminBreaking.title")}
+                    </h1>
 
                     <p>
-                        Manage urgent news alerts displayed
-                        across the public website.
+                        {t("adminBreaking.subtitle")}
                     </p>
                 </div>
 
@@ -283,8 +285,8 @@ function AdminBreakingNews() {
 
                     <small>
                         {breakingNews.length === 1
-                            ? "Alert"
-                            : "Alerts"}
+                            ? t("adminBreaking.countOne")
+                            : t("adminBreaking.countMany")}
                     </small>
                 </div>
             </header>
@@ -300,7 +302,9 @@ function AdminBreakingNews() {
 
                                 <div>
                                     <strong>
-                                        Action completed
+                                        {t(
+                                            "adminBreaking.successTitle"
+                                        )}
                                     </strong>
 
                                     <p>{message}</p>
@@ -316,7 +320,9 @@ function AdminBreakingNews() {
 
                                 <div>
                                     <strong>
-                                        Something went wrong
+                                        {t(
+                                            "adminBreaking.errorTitle"
+                                        )}
                                     </strong>
 
                                     <p>{error}</p>
@@ -336,13 +342,11 @@ function AdminBreakingNews() {
 
                             <div>
                                 <h2>
-                                    Create Breaking Alert
+                                    {t("adminBreaking.createTitle")}
                                 </h2>
 
                                 <p>
-                                    Publish an urgent headline
-                                    to the site's breaking news
-                                    area.
+                                    {t("adminBreaking.createText")}
                                 </p>
                             </div>
                         </div>
@@ -353,7 +357,7 @@ function AdminBreakingNews() {
                         >
                             <div className="admin-breaking-field">
                                 <label htmlFor="headline">
-                                    Headline
+                                    {t("adminBreaking.headlineLabel")}
                                     <span>*</span>
                                 </label>
 
@@ -366,15 +370,18 @@ function AdminBreakingNews() {
                                             event.target.value
                                         )
                                     }
-                                    placeholder="Enter breaking news headline"
+                                    placeholder={t(
+                                        "adminBreaking.headlinePlaceholder"
+                                    )}
                                     maxLength="300"
                                     required
                                 />
 
                                 <div className="admin-breaking-field-meta">
                                     <small>
-                                        Keep the headline concise
-                                        and easy to scan.
+                                        {t(
+                                            "adminBreaking.headlineHelp"
+                                        )}
                                     </small>
 
                                     <span>
@@ -385,7 +392,7 @@ function AdminBreakingNews() {
 
                             <div className="admin-breaking-field">
                                 <label htmlFor="newsId">
-                                    Related Article
+                                    {t("adminBreaking.relatedArticle")}
                                 </label>
 
                                 <select
@@ -398,7 +405,7 @@ function AdminBreakingNews() {
                                     }
                                 >
                                     <option value="">
-                                        No related article
+                                        {t("adminBreaking.noRelated")}
                                     </option>
 
                                     {news.map((article) => (
@@ -416,14 +423,13 @@ function AdminBreakingNews() {
                                 </select>
 
                                 <small>
-                                    Optionally connect this alert
-                                    to an existing article.
+                                    {t("adminBreaking.relatedHelp")}
                                 </small>
                             </div>
 
                             <div className="admin-breaking-field">
                                 <label htmlFor="linkUrl">
-                                    Link URL
+                                    {t("adminBreaking.linkUrl")}
                                 </label>
 
                                 <input
@@ -439,15 +445,14 @@ function AdminBreakingNews() {
                                 />
 
                                 <small>
-                                    Optional external destination
-                                    for the breaking alert.
+                                    {t("adminBreaking.linkHelp")}
                                 </small>
                             </div>
 
                             <div className="admin-breaking-datetime-grid">
                                 <div className="admin-breaking-field">
                                     <label>
-                                        Start Time
+                                        {t("adminBreaking.startTime")}
                                     </label>
 
                                     <div className="admin-breaking-datetime">
@@ -519,7 +524,7 @@ function AdminBreakingNews() {
 
                                 <div className="admin-breaking-field">
                                     <label>
-                                        End Time
+                                        {t("adminBreaking.endTime")}
                                     </label>
 
                                     <div className="admin-breaking-datetime">
@@ -599,14 +604,14 @@ function AdminBreakingNews() {
                                     {saving ? (
                                         <>
                                             <span className="admin-breaking-spinner"></span>
-                                            Creating...
+                                            {t("adminBreaking.creating")}
                                         </>
                                     ) : (
                                         <>
                                             <span className="admin-breaking-button-icon">
                                                 +
                                             </span>
-                                            Create Breaking News
+                                            {t("adminBreaking.createAction")}
                                         </>
                                     )}
                                 </button>
@@ -621,13 +626,11 @@ function AdminBreakingNews() {
                         </div>
 
                         <h3>
-                            About Breaking Alerts
+                            {t("adminBreaking.aboutTitle")}
                         </h3>
 
                         <p>
-                            Breaking news alerts are designed
-                            for important stories that need
-                            immediate visibility.
+                            {t("adminBreaking.aboutText")}
                         </p>
 
                         <div className="admin-breaking-info-list">
@@ -635,8 +638,7 @@ function AdminBreakingNews() {
                                 <span>01</span>
 
                                 <p>
-                                    Use a short, clear headline
-                                    that can be understood quickly.
+                                    {t("adminBreaking.tip1")}
                                 </p>
                             </div>
 
@@ -644,8 +646,7 @@ function AdminBreakingNews() {
                                 <span>02</span>
 
                                 <p>
-                                    Connect an existing article
-                                    when a full story is available.
+                                    {t("adminBreaking.tip2")}
                                 </p>
                             </div>
 
@@ -653,9 +654,7 @@ function AdminBreakingNews() {
                                 <span>03</span>
 
                                 <p>
-                                    Set start and end times when
-                                    an alert should only appear
-                                    temporarily.
+                                    {t("adminBreaking.tip3")}
                                 </p>
                             </div>
                         </div>
@@ -673,12 +672,11 @@ function AdminBreakingNews() {
 
                                 <div>
                                     <h2>
-                                        Breaking News Alerts
+                                        {t("adminBreaking.listTitle")}
                                     </h2>
 
                                     <p>
-                                        Manage your existing
-                                        breaking news alerts.
+                                        {t("adminBreaking.listText")}
                                     </p>
                                 </div>
                             </div>
@@ -691,8 +689,8 @@ function AdminBreakingNews() {
 
                             <span>
                                 {breakingNews.length === 1
-                                    ? "total alert"
-                                    : "total alerts"}
+                                    ? t("adminBreaking.totalOne")
+                                    : t("adminBreaking.totalMany")}
                             </span>
                         </div>
                     </div>
@@ -702,12 +700,11 @@ function AdminBreakingNews() {
                             <span className="admin-breaking-large-spinner"></span>
 
                             <h3>
-                                Loading breaking news
+                                {t("adminBreaking.loading")}
                             </h3>
 
                             <p>
-                                Please wait while the alert
-                                list is loaded.
+                                {t("adminBreaking.loadingText")}
                             </p>
                         </div>
                     ) : breakingNews.length === 0 ? (
@@ -717,12 +714,11 @@ function AdminBreakingNews() {
                             </div>
 
                             <h3>
-                                No breaking news alerts
+                                {t("adminBreaking.emptyTitle")}
                             </h3>
 
                             <p>
-                                Create a breaking news alert
-                                using the form above.
+                                {t("adminBreaking.emptyText")}
                             </p>
                         </div>
                     ) : (
@@ -731,23 +727,23 @@ function AdminBreakingNews() {
                                 <thead>
                                     <tr>
                                         <th>
-                                            Headline
+                                            {t("adminBreaking.thHeadline")}
                                         </th>
 
                                         <th>
-                                            Related Article
+                                            {t("adminBreaking.thRelated")}
                                         </th>
 
                                         <th>
-                                            Status
+                                            {t("adminBreaking.thStatus")}
                                         </th>
 
                                         <th>
-                                            Schedule
+                                            {t("adminBreaking.thSchedule")}
                                         </th>
 
                                         <th>
-                                            Actions
+                                            {t("adminBreaking.thActions")}
                                         </th>
                                     </tr>
                                 </thead>
@@ -775,8 +771,9 @@ function AdminBreakingNews() {
 
                                                             {item.link_url && (
                                                                 <small>
-                                                                    External
-                                                                    link
+                                                                    {t(
+                                                                        "adminBreaking.externalLink"
+                                                                    )}
                                                                 </small>
                                                             )}
                                                         </div>
@@ -787,7 +784,9 @@ function AdminBreakingNews() {
                                                     <span className="admin-breaking-related">
                                                         {
                                                             item.news_title ||
-                                                            "No related article"
+                                                            t(
+                                                                "adminBreaking.noRelated"
+                                                            )
                                                         }
                                                     </span>
                                                 </td>
@@ -803,8 +802,12 @@ function AdminBreakingNews() {
                                                         <span></span>
 
                                                         {item.is_active
-                                                            ? "Active"
-                                                            : "Inactive"}
+                                                            ? t(
+                                                                  "adminBreaking.active"
+                                                              )
+                                                            : t(
+                                                                  "adminBreaking.inactive"
+                                                              )}
                                                     </span>
                                                 </td>
 
@@ -812,29 +815,41 @@ function AdminBreakingNews() {
                                                     <div className="admin-breaking-schedule">
                                                         <div>
                                                             <span>
-                                                                START
+                                                                {t(
+                                                                    "adminBreaking.scheduleStart"
+                                                                )}
                                                             </span>
 
                                                             <strong>
                                                                 {item.starts_at
                                                                     ? new Date(
-                                                                        item.starts_at
-                                                                    ).toLocaleString()
-                                                                    : "Immediately"}
+                                                                          item.starts_at
+                                                                      ).toLocaleString(
+                                                                          locale
+                                                                      )
+                                                                    : t(
+                                                                          "adminBreaking.immediately"
+                                                                      )}
                                                             </strong>
                                                         </div>
 
                                                         <div>
                                                             <span>
-                                                                END
+                                                                {t(
+                                                                    "adminBreaking.scheduleEnd"
+                                                                )}
                                                             </span>
 
                                                             <strong>
                                                                 {item.ends_at
                                                                     ? new Date(
-                                                                        item.ends_at
-                                                                    ).toLocaleString()
-                                                                    : "No end time"}
+                                                                          item.ends_at
+                                                                      ).toLocaleString(
+                                                                          locale
+                                                                      )
+                                                                    : t(
+                                                                          "adminBreaking.noEndTime"
+                                                                      )}
                                                             </strong>
                                                         </div>
                                                     </div>
@@ -853,8 +868,12 @@ function AdminBreakingNews() {
                                                             }
                                                         >
                                                             {item.is_active
-                                                                ? "Deactivate"
-                                                                : "Activate"}
+                                                                ? t(
+                                                                      "adminBreaking.deactivate"
+                                                                  )
+                                                                : t(
+                                                                      "adminBreaking.activate"
+                                                                  )}
                                                         </button>
 
                                                         <button
@@ -866,7 +885,7 @@ function AdminBreakingNews() {
                                                                 )
                                                             }
                                                         >
-                                                            Delete
+                                                            {t("adminNews.delete")}
                                                         </button>
                                                     </div>
                                                 </td>

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
+import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
 function CreateNews() {
     const navigate = useNavigate();
+    const { t } = useLanguage();
 
     const [categories, setCategories] = useState([]);
     const [media, setMedia] = useState([]);
@@ -137,14 +139,12 @@ function CreateNews() {
             if (!response.ok) {
                 setError(
                     data.message ||
-                    "Failed to create article."
+                        t("createNews.createError")
                 );
                 return;
             }
 
-            setSuccess(
-                "Article created successfully."
-            );
+            setSuccess(t("createNews.successText"));
 
             setTimeout(() => {
                 navigate("/admin/news");
@@ -156,9 +156,7 @@ function CreateNews() {
                 error
             );
 
-            setError(
-                "Unable to connect to the server."
-            );
+            setError(t("createNews.connectionError"));
         } finally {
             setSaving(false);
         }
@@ -172,13 +170,15 @@ function CreateNews() {
 
                 <div>
                     <span className="admin-page-eyebrow">
-                        CONTENT MANAGEMENT
+                        {t("createNews.eyebrow")}
                     </span>
 
-                    <h1>Create Article</h1>
+                    <h1>
+                        {t("createNews.title")}
+                    </h1>
 
                     <p>
-                        Write and publish a new news article.
+                        {t("createNews.subtitle")}
                     </p>
                 </div>
 
@@ -186,7 +186,7 @@ function CreateNews() {
                     to="/admin/news"
                     className="admin-secondary-button"
                 >
-                    ← Back to News
+                    ← {t("createNews.backToNews")}
                 </Link>
 
             </header>
@@ -211,7 +211,7 @@ function CreateNews() {
 
                             <div>
                                 <strong>
-                                    Unable to create article
+                                    {t("createNews.errorTitle")}
                                 </strong>
 
                                 <p>{error}</p>
@@ -230,11 +230,11 @@ function CreateNews() {
 
                             <div>
                                 <strong>
-                                    Article created successfully
+                                    {t("createNews.successTitle")}
                                 </strong>
 
                                 <p>
-                                    Redirecting you to News Management...
+                                    {t("createNews.successText")}
                                 </p>
                             </div>
                         </div>
@@ -255,12 +255,15 @@ function CreateNews() {
 
                                     <div>
                                         <h2>
-                                            Article Information
+                                            {t(
+                                                "createNews.infoTitle"
+                                            )}
                                         </h2>
 
                                         <p>
-                                            Add the main information for
-                                            your news article.
+                                            {t(
+                                                "createNews.infoText"
+                                            )}
                                         </p>
                                     </div>
                                 </div>
@@ -268,7 +271,7 @@ function CreateNews() {
                                 <div className="create-news-form-group">
 
                                     <label htmlFor="title">
-                                        Article Title
+                                        {t("createNews.titleLabel")}
                                         <span>*</span>
                                     </label>
 
@@ -281,15 +284,18 @@ function CreateNews() {
                                                 event.target.value
                                             )
                                         }
-                                        placeholder="Enter a clear and engaging headline"
+                                        placeholder={t(
+                                            "createNews.titlePlaceholder"
+                                        )}
                                         maxLength="300"
                                         required
                                     />
 
                                     <div className="create-news-field-footer">
                                         <small>
-                                            Write a concise headline that
-                                            clearly describes the story.
+                                            {t(
+                                                "createNews.titleHelp"
+                                            )}
                                         </small>
 
                                         <span>
@@ -302,7 +308,7 @@ function CreateNews() {
                                 <div className="create-news-form-group">
 
                                     <label htmlFor="category">
-                                        Category
+                                        {t("createNews.categoryLabel")}
                                         <span>*</span>
                                     </label>
 
@@ -317,7 +323,9 @@ function CreateNews() {
                                         required
                                     >
                                         <option value="">
-                                            Select a category
+                                            {t(
+                                                "createNews.selectCategory"
+                                            )}
                                         </option>
 
                                         {categories.map(
@@ -338,9 +346,13 @@ function CreateNews() {
 
                                     {categories.length === 0 && (
                                         <small className="create-news-help">
-                                            No categories exist yet.{" "}
+                                            {t(
+                                                "createNews.noCategories"
+                                            )}{" "}
                                             <Link to="/admin/categories">
-                                                Create a category first.
+                                                {t(
+                                                    "createNews.createCategoryLink"
+                                                )}
                                             </Link>
                                         </small>
                                     )}
@@ -350,7 +362,7 @@ function CreateNews() {
                                 <div className="create-news-form-group">
 
                                     <label htmlFor="summary">
-                                        Summary
+                                        {t("createNews.summaryLabel")}
                                     </label>
 
                                     <textarea
@@ -361,14 +373,14 @@ function CreateNews() {
                                                 event.target.value
                                             )
                                         }
-                                        placeholder="Write a short summary that introduces the story..."
+                                        placeholder={t(
+                                            "createNews.summaryPlaceholder"
+                                        )}
                                         rows="4"
                                     />
 
                                     <small className="create-news-help">
-                                        A short summary helps readers
-                                        understand the story before opening
-                                        the full article.
+                                        {t("createNews.summaryHelp")}
                                     </small>
 
                                 </div>
@@ -376,7 +388,7 @@ function CreateNews() {
                                 <div className="create-news-form-group">
 
                                     <label htmlFor="content">
-                                        Article Content
+                                        {t("createNews.contentLabel")}
                                         <span>*</span>
                                     </label>
 
@@ -389,18 +401,24 @@ function CreateNews() {
                                                 event.target.value
                                             )
                                         }
-                                        placeholder="Write the full article here..."
+                                        placeholder={t(
+                                            "createNews.contentPlaceholder"
+                                        )}
                                         rows="18"
                                         required
                                     />
 
                                     <div className="create-news-field-footer">
                                         <small>
-                                            Write the complete article content.
+                                            {t(
+                                                "createNews.contentHelp"
+                                            )}
                                         </small>
 
                                         <span>
-                                            {content.length} characters
+                                            {content.length} {t(
+                                                "createNews.characters"
+                                            )}
                                         </span>
                                     </div>
 
@@ -419,12 +437,15 @@ function CreateNews() {
 
                                     <div>
                                         <h2>
-                                            Featured Image
+                                            {t(
+                                                "createNews.imageTitle"
+                                            )}
                                         </h2>
 
                                         <p>
-                                            Choose the main image displayed
-                                            with this article.
+                                            {t(
+                                                "createNews.imageText"
+                                            )}
                                         </p>
                                     </div>
                                 </div>
@@ -432,7 +453,7 @@ function CreateNews() {
                                 <div className="create-news-form-group">
 
                                     <label htmlFor="media">
-                                        Media Library
+                                        {t("createNews.mediaLabel")}
                                     </label>
 
                                     <select
@@ -441,7 +462,9 @@ function CreateNews() {
                                         defaultValue=""
                                     >
                                         <option value="">
-                                            Select an uploaded image
+                                            {t(
+                                                "createNews.selectMedia"
+                                            )}
                                         </option>
 
                                         {media.map((item) => (
@@ -456,9 +479,13 @@ function CreateNews() {
 
                                     {media.length === 0 && (
                                         <small className="create-news-help">
-                                            No images uploaded yet.{" "}
+                                            {t(
+                                                "createNews.noImages"
+                                            )}{" "}
                                             <Link to="/admin/media">
-                                                Open Media Library
+                                                {t(
+                                                    "createNews.openMediaLink"
+                                                )}
                                             </Link>
                                         </small>
                                     )}
@@ -472,12 +499,16 @@ function CreateNews() {
                                             src={featuredImage}
                                             alt={
                                                 imageCaption ||
-                                                "Selected article image"
+                                                t(
+                                                    "createNews.previewAlt"
+                                                )
                                             }
                                         />
 
                                         <div className="create-news-image-preview-label">
-                                            Featured Image Preview
+                                            {t(
+                                                "createNews.previewLabel"
+                                            )}
                                         </div>
 
                                     </div>
@@ -486,7 +517,7 @@ function CreateNews() {
                                 <div className="create-news-form-group">
 
                                     <label htmlFor="featuredImage">
-                                        Image URL
+                                        {t("createNews.imageUrl")}
                                     </label>
 
                                     <input
@@ -502,8 +533,7 @@ function CreateNews() {
                                     />
 
                                     <small className="create-news-help">
-                                        Select an uploaded image above or
-                                        enter an external image URL.
+                                        {t("createNews.imageUrlHelp")}
                                     </small>
 
                                 </div>
@@ -511,7 +541,7 @@ function CreateNews() {
                                 <div className="create-news-form-group">
 
                                     <label htmlFor="imageCaption">
-                                        Image Caption
+                                        {t("createNews.captionLabel")}
                                     </label>
 
                                     <input
@@ -523,7 +553,9 @@ function CreateNews() {
                                                 event.target.value
                                             )
                                         }
-                                        placeholder="Describe the image..."
+                                        placeholder={t(
+                                            "createNews.captionPlaceholder"
+                                        )}
                                     />
 
                                 </div>
@@ -545,11 +577,13 @@ function CreateNews() {
 
                                     <div>
                                         <h2>
-                                            Publishing
+                                            {t("createNews.publishing")}
                                         </h2>
 
                                         <p>
-                                            Control how this article appears.
+                                            {t(
+                                                "createNews.publishingText"
+                                            )}
                                         </p>
                                     </div>
                                 </div>
@@ -557,7 +591,7 @@ function CreateNews() {
                                 <div className="create-news-form-group">
 
                                     <label htmlFor="status">
-                                        Status
+                                        {t("createNews.status")}
                                     </label>
 
                                     <select
@@ -570,11 +604,15 @@ function CreateNews() {
                                         }
                                     >
                                         <option value="draft">
-                                            Draft
+                                            {t(
+                                                "createNews.draft"
+                                            )}
                                         </option>
 
                                         <option value="published">
-                                            Published
+                                            {t(
+                                                "createNews.published"
+                                            )}
                                         </option>
                                     </select>
 
@@ -598,12 +636,15 @@ function CreateNews() {
 
                                     <span className="create-news-toggle-text">
                                         <strong>
-                                            Feature this article
+                                            {t(
+                                                "createNews.featureToggle"
+                                            )}
                                         </strong>
 
                                         <small>
-                                            Highlight this article on the
-                                            website.
+                                            {t(
+                                                "createNews.featureToggleText"
+                                            )}
                                         </small>
                                     </span>
 
@@ -623,11 +664,15 @@ function CreateNews() {
 
                                     <div>
                                         <h2>
-                                            Writing Tips
+                                            {t(
+                                                "createNews.tipsTitle"
+                                            )}
                                         </h2>
 
                                         <p>
-                                            Create stronger articles.
+                                            {t(
+                                                "createNews.tipsText"
+                                            )}
                                         </p>
                                     </div>
 
@@ -635,20 +680,27 @@ function CreateNews() {
 
                                 <ul>
                                     <li>
-                                        Use a clear and informative headline.
+                                        {t(
+                                            "createNews.tip1"
+                                        )}
                                     </li>
 
                                     <li>
-                                        Keep the summary short and useful.
+                                        {t(
+                                            "createNews.tip2"
+                                        )}
                                     </li>
 
                                     <li>
-                                        Use the featured image that best
-                                        represents the story.
+                                        {t(
+                                            "createNews.tip3"
+                                        )}
                                     </li>
 
                                     <li>
-                                        Review the article before publishing.
+                                        {t(
+                                            "createNews.tip4"
+                                        )}
                                     </li>
                                 </ul>
 
@@ -666,7 +718,7 @@ function CreateNews() {
                             to="/admin/news"
                             className="admin-secondary-button"
                         >
-                            Cancel
+                            {t("createNews.cancel")}
                         </Link>
 
                         <button
@@ -677,11 +729,11 @@ function CreateNews() {
                             {saving ? (
                                 <>
                                     <span className="create-news-button-spinner"></span>
-                                    Saving...
+                                    {t("createNews.saving")}
                                 </>
                             ) : (
                                 <>
-                                    Create Article
+                                    {t("createNews.createAction")}
                                     <span className="create-news-submit-arrow">
                                         →
                                     </span>

@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
+import BreakingBar from "../components/BreakingBar";
+import SiteFooter from "../components/SiteFooter";
+import SiteHeader from "../components/SiteHeader";
+import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
 function HomePage() {
-    const navigate = useNavigate();
+    const { t, locale } = useLanguage();
 
     const [news, setNews] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -79,99 +84,19 @@ function HomePage() {
             return "";
         }
 
-        return parsedDate.toLocaleDateString("en-US", {
+        return parsedDate.toLocaleDateString(locale, {
             month: "short",
             day: "numeric",
             year: "numeric",
         });
     };
 
-    const handleSearch = (event) => {
-        event.preventDefault();
-
-        const form = event.currentTarget;
-        const input = form.querySelector("input");
-        const query = input?.value.trim();
-
-        if (query) {
-            navigate(`/search?q=${encodeURIComponent(query)}`);
-        }
-    };
-
     return (
         <div className="site">
 
-            {/* =========================
-                HEADER
-            ========================== */}
-            <header className="site-header">
-                <div className="header-container">
+            <SiteHeader categories={categories} />
 
-                    <Link to="/" className="logo">
-                        BREAKING <span>NEWS</span>
-                    </Link>
-
-                    <nav className="main-nav">
-                        <Link to="/" className="active">
-                            Home
-                        </Link>
-
-                        {categories.map((category) => (
-                            <Link
-                                to={`/category/${category.slug}`}
-                                key={category.category_id}
-                            >
-                                {category.name}
-                            </Link>
-                        ))}
-                    </nav>
-
-                    <form
-                        className="header-search"
-                        onSubmit={handleSearch}
-                    >
-                        <input
-                            type="search"
-                            placeholder="Search news..."
-                            aria-label="Search news"
-                        />
-
-                        <button type="submit">
-                            Search
-                        </button>
-                    </form>
-
-                </div>
-            </header>
-
-            {/* =========================
-                BREAKING NEWS
-            ========================== */}
-            {breakingNews.length > 0 && (
-                <div className="breaking-bar">
-                    <div className="breaking-container">
-
-                        <div className="breaking-label">
-                            BREAKING
-                        </div>
-
-                        <div className="breaking-text">
-                            {breakingNews[0].news_slug ? (
-                                <Link
-                                    to={`/news/${breakingNews[0].news_slug}`}
-                                >
-                                    {breakingNews[0].headline}
-                                </Link>
-                            ) : (
-                                <span>
-                                    {breakingNews[0].headline}
-                                </span>
-                            )}
-                        </div>
-
-                    </div>
-                </div>
-            )}
+            <BreakingBar items={breakingNews} />
 
             {/* =========================
                 MAIN CONTENT
@@ -181,16 +106,15 @@ function HomePage() {
                 {/* Page Introduction */}
                 <section className="page-heading">
                     <p className="section-label">
-                        TOP STORIES
+                        {t("home.topStories")}
                     </p>
 
                     <h1>
-                        Latest News
+                        {t("home.latestNews")}
                     </h1>
 
                     <p>
-                        Stay informed with the latest headlines,
-                        breaking stories, and important developments.
+                        {t("home.intro")}
                     </p>
                 </section>
 
@@ -200,7 +124,7 @@ function HomePage() {
                         <div className="loading-spinner"></div>
 
                         <h2>
-                            Loading latest news...
+                            {t("home.loading")}
                         </h2>
                     </div>
                 )}
@@ -213,11 +137,11 @@ function HomePage() {
                         </div>
 
                         <h2>
-                            No news published yet
+                            {t("home.noNewsTitle")}
                         </h2>
 
                         <p>
-                            Published news articles will appear here.
+                            {t("home.noNewsText")}
                         </p>
                     </div>
                 )}
@@ -246,12 +170,14 @@ function HomePage() {
                                     />
                                 ) : (
                                     <div className="story-image story-image-placeholder">
-                                        <span>NEWS</span>
+                                        <span>
+                                            {t("brand.placeholder")}
+                                        </span>
                                     </div>
                                 )}
 
                                 <div className="featured-badge">
-                                    FEATURED
+                                    {t("home.featured")}
                                 </div>
 
                             </div>
@@ -306,7 +232,7 @@ function HomePage() {
                                                 />
                                             ) : (
                                                 <div className="small-story-image small-story-placeholder">
-                                                    NEWS
+                                                    {t("brand.placeholder")}
                                                 </div>
                                             )}
                                         </div>
@@ -350,11 +276,11 @@ function HomePage() {
 
                             <div>
                                 <p className="section-label">
-                                    MORE STORIES
+                                    {t("home.moreStories")}
                                 </p>
 
                                 <h2>
-                                    Latest Updates
+                                    {t("home.latestUpdates")}
                                 </h2>
                             </div>
 
@@ -380,7 +306,7 @@ function HomePage() {
                                             />
                                         ) : (
                                             <div className="latest-image-placeholder">
-                                                NEWS
+                                                {t("brand.placeholder")}
                                             </div>
                                         )}
                                     </div>
@@ -421,53 +347,7 @@ function HomePage() {
 
             </main>
 
-            {/* =========================
-                FOOTER
-            ========================== */}
-            <footer className="site-footer">
-                <div className="footer-container">
-
-                    <div className="footer-brand">
-                        <div className="logo">
-                            BREAKING <span>NEWS</span>
-                        </div>
-
-                        <p>
-                            Reliable news, important stories,
-                            and the latest developments.
-                        </p>
-                    </div>
-
-                    <div className="footer-links">
-
-                        <h3>
-                            Quick Links
-                        </h3>
-
-                        <Link to="/">
-                            Home
-                        </Link>
-
-                        {categories.slice(0, 5).map((category) => (
-                            <Link
-                                to={`/category/${category.slug}`}
-                                key={category.category_id}
-                            >
-                                {category.name}
-                            </Link>
-                        ))}
-
-                    </div>
-
-                </div>
-
-                <div className="footer-bottom">
-                    <p>
-                        © {new Date().getFullYear()} Breaking News.
-                        All rights reserved.
-                    </p>
-                </div>
-            </footer>
+            <SiteFooter categories={categories} />
 
         </div>
     );

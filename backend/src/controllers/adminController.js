@@ -76,7 +76,8 @@ const login = async (req, res) => {
         console.error("Admin login error:", error);
 
         res.status(500).json({
-            message: "Login failed"
+            message: "Login failed",
+            error: error.message
         });
     }
 };

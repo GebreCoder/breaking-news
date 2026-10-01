@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+
+import BreakingBar from "../components/BreakingBar";
+import SiteFooter from "../components/SiteFooter";
+import SiteHeader from "../components/SiteHeader";
+import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
 function SearchNews() {
-    const navigate = useNavigate();
+    const { t, locale } = useLanguage();
     const [searchParams, setSearchParams] = useSearchParams();
 
     const initialQuery = searchParams.get("q") || "";
@@ -123,16 +128,14 @@ function SearchNews() {
                     error
                 );
 
-                setError(
-                    "Unable to search news right now."
-                );
+                setError(t("search.errorText"));
             } finally {
                 setLoading(false);
             }
         };
 
         searchNews();
-    }, [initialQuery]);
+    }, [initialQuery, t]);
 
     const formatDate = (date) => {
         if (!date) {
@@ -145,7 +148,7 @@ function SearchNews() {
             return "";
         }
 
-        return parsedDate.toLocaleDateString("en-US", {
+        return parsedDate.toLocaleDateString(locale, {
             month: "short",
             day: "numeric",
             year: "numeric",
@@ -167,103 +170,28 @@ function SearchNews() {
         });
     };
 
-    const handleHeaderSearch = (event) => {
-        event.preventDefault();
-
-        const form = event.currentTarget;
-        const input = form.querySelector("input");
-        const searchValue = input?.value.trim();
-
-        if (searchValue) {
-            navigate(
-                `/search?q=${encodeURIComponent(searchValue)}`
-            );
-        }
-    };
-
     return (
         <div className="site">
-            {/* HEADER */}
-            <header className="site-header">
-                <div className="header-container">
-                    <Link to="/" className="logo">
-                        BREAKING <span>NEWS</span>
-                    </Link>
+            <SiteHeader
+                categories={categories}
+                homeActive={!searched}
+            />
 
-                    <nav className="main-nav">
-                        <Link
-                            to="/"
-                            className={!searched ? "active" : ""}
-                        >
-                            Home
-                        </Link>
-
-                        {categories.map((category) => (
-                            <Link
-                                to={`/category/${category.slug}`}
-                                key={category.category_id}
-                            >
-                                {category.name}
-                            </Link>
-                        ))}
-                    </nav>
-
-                    <form
-                        className="header-search"
-                        onSubmit={handleHeaderSearch}
-                    >
-                        <input
-                            type="search"
-                            placeholder="Search news..."
-                            aria-label="Search news"
-                        />
-
-                        <button type="submit">
-                            Search
-                        </button>
-                    </form>
-                </div>
-            </header>
-
-            {/* BREAKING NEWS */}
-            {breakingNews.length > 0 && (
-                <div className="breaking-bar">
-                    <div className="breaking-container">
-                        <div className="breaking-label">
-                            BREAKING
-                        </div>
-
-                        <div className="breaking-text">
-                            {breakingNews[0].news_slug ? (
-                                <Link
-                                    to={`/news/${breakingNews[0].news_slug}`}
-                                >
-                                    {breakingNews[0].headline}
-                                </Link>
-                            ) : (
-                                <span>
-                                    {breakingNews[0].headline}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
+            <BreakingBar items={breakingNews} />
 
             {/* SEARCH CONTENT */}
             <main className="main-content search-page">
                 <section className="page-heading search-page-heading">
                     <p className="section-label">
-                        SEARCH
+                        {t("search.label")}
                     </p>
 
                     <h1>
-                        Search News
+                        {t("search.title")}
                     </h1>
 
                     <p>
-                        Find the latest stories, headlines,
-                        and important developments.
+                        {t("search.intro")}
                     </p>
                 </section>
 
@@ -279,13 +207,15 @@ function SearchNews() {
                             onChange={(event) =>
                                 setQuery(event.target.value)
                             }
-                            placeholder="Search news..."
-                            aria-label="Search news"
+                            placeholder={t(
+                                "nav.searchPlaceholder"
+                            )}
+                            aria-label={t("nav.search")}
                         />
                     </div>
 
                     <button type="submit">
-                        Search
+                        {t("nav.search")}
                     </button>
                 </form>
 
@@ -295,12 +225,11 @@ function SearchNews() {
                         <div className="loading-spinner"></div>
 
                         <h2>
-                            Searching news...
+                            {t("search.searching")}
                         </h2>
 
                         <p>
-                            Looking through published
-                            articles.
+                            {t("search.searchingText")}
                         </p>
                     </div>
                 )}
@@ -309,7 +238,7 @@ function SearchNews() {
                 {!loading && error && (
                     <div className="search-error">
                         <h2>
-                            Something went wrong
+                            {t("search.errorTitle")}
                         </h2>
 
                         <p>
@@ -324,7 +253,7 @@ function SearchNews() {
                                 })
                             }
                         >
-                            Try Again
+                            {t("search.tryAgain")}
                         </button>
                     </div>
                 )}
@@ -339,13 +268,11 @@ function SearchNews() {
                             </div>
 
                             <h2>
-                                Search for a story
+                                {t("search.emptyTitle")}
                             </h2>
 
                             <p>
-                                Enter a keyword, topic, or
-                                category above to find
-                                published news.
+                                {t("search.emptyText")}
                             </p>
                         </div>
                     )}
@@ -361,15 +288,15 @@ function SearchNews() {
                             </div>
 
                             <p className="section-label">
-                                NO RESULTS
+                                {t("search.noResultsLabel")}
                             </p>
 
                             <h2>
-                                No results found
+                                {t("search.noResultsTitle")}
                             </h2>
 
                             <p>
-                                No published articles matched
+                                {t("search.noResultsText")}
                                 <strong>
                                     {" "}
                                     "{initialQuery}"
@@ -384,7 +311,7 @@ function SearchNews() {
                                     setSearchParams({})
                                 }
                             >
-                                Clear Search
+                                {t("search.clear")}
                             </button>
                         </div>
                     )}
@@ -397,19 +324,19 @@ function SearchNews() {
                             <div className="search-results-header">
                                 <div>
                                     <p className="section-label">
-                                        RESULTS
+                                        {t("search.resultsLabel")}
                                     </p>
 
                                     <h2>
-                                        Search Results
+                                        {t("search.resultsTitle")}
                                     </h2>
                                 </div>
 
                                 <span className="search-result-count">
                                     {articles.length}{" "}
                                     {articles.length === 1
-                                        ? "article"
-                                        : "articles"}
+                                        ? t("search.countOne")
+                                        : t("search.countMany")}
                                 </span>
                             </div>
 
@@ -436,7 +363,9 @@ function SearchNews() {
                                                 />
                                             ) : (
                                                 <div className="category-news-image category-news-placeholder">
-                                                    NEWS
+                                                    {t(
+                                                        "brand.placeholder"
+                                                    )}
                                                 </div>
                                             )}
                                         </Link>
@@ -477,7 +406,9 @@ function SearchNews() {
                                                     to={`/news/${article.slug}`}
                                                     className="read-story-link"
                                                 >
-                                                    Read Story →
+                                                    {t(
+                                                        "search.readStory"
+                                                    )}
                                                 </Link>
                                             </div>
                                         </div>
@@ -488,47 +419,7 @@ function SearchNews() {
                     )}
             </main>
 
-            {/* FOOTER */}
-            <footer className="site-footer">
-                <div className="footer-container">
-                    <div className="footer-brand">
-                        <div className="logo">
-                            BREAKING <span>NEWS</span>
-                        </div>
-
-                        <p>
-                            Reliable news, important stories,
-                            and the latest developments.
-                        </p>
-                    </div>
-
-                    <div className="footer-links">
-                        <h3>
-                            Quick Links
-                        </h3>
-
-                        <Link to="/">
-                            Home
-                        </Link>
-
-                        {categories.slice(0, 5).map((category) => (
-                            <Link
-                                to={`/category/${category.slug}`}
-                                key={category.category_id}
-                            >
-                                {category.name}
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="footer-bottom">
-                    <p>
-                        © {new Date().getFullYear()} Breaking News.
-                        All rights reserved.
-                    </p>
-                </div>
-            </footer>
+            <SiteFooter categories={categories} />
         </div>
     );
 }

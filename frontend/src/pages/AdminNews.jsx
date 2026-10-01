@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
+import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
 function AdminNews() {
     const navigate = useNavigate();
+    const { t, locale } = useLanguage();
 
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -33,7 +35,7 @@ function AdminNews() {
 
             if (!response.ok) {
                 throw new Error(
-                    data.message || "Failed to load news."
+                    data.message || t("adminNews.loadFailed")
                 );
             }
 
@@ -42,8 +44,7 @@ function AdminNews() {
             console.error("Error loading news:", error);
 
             setError(
-                error.message ||
-                "Unable to load news articles."
+                error.message || t("adminNews.loadError")
             );
         } finally {
             setLoading(false);
@@ -56,7 +57,9 @@ function AdminNews() {
 
     const handleDelete = async (id, title) => {
         const confirmed = window.confirm(
-            `Are you sure you want to delete "${title}"?\n\nThis action cannot be undone.`
+            `${t("adminNews.deleteConfirmText", { title })}\n\n${t(
+                "adminNews.deleteConfirmWarning"
+            )}`
         );
 
         if (!confirmed) {
@@ -83,22 +86,18 @@ function AdminNews() {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                    "Failed to delete article."
+                        t("adminNews.deleteError")
                 );
             }
 
-            setMessage(
-                data.message ||
-                "News article deleted successfully."
-            );
+            setMessage(t("adminNews.deleteSuccess"));
 
             await loadNews();
         } catch (error) {
             console.error("Error deleting news:", error);
 
             setError(
-                error.message ||
-                "Unable to delete the article."
+                error.message || t("adminNews.deleteError")
             );
         } finally {
             setDeletingId(null);
@@ -107,16 +106,16 @@ function AdminNews() {
 
     const formatDate = (dateValue) => {
         if (!dateValue) {
-            return "Not published";
+            return t("adminNews.notPublished");
         }
 
         const date = new Date(dateValue);
 
         if (Number.isNaN(date.getTime())) {
-            return "Not published";
+            return t("adminNews.notPublished");
         }
 
-        return date.toLocaleDateString("en-US", {
+        return date.toLocaleDateString(locale, {
             month: "short",
             day: "numeric",
             year: "numeric"
@@ -134,7 +133,7 @@ function AdminNews() {
             return "";
         }
 
-        return date.toLocaleTimeString("en-US", {
+        return date.toLocaleTimeString(locale, {
             hour: "numeric",
             minute: "2-digit"
         });
@@ -148,6 +147,14 @@ function AdminNews() {
         return "draft";
     };
 
+    const getStatusLabel = (status) => {
+        if (status === "published") {
+            return t("adminNews.statusPublished");
+        }
+
+        return t("adminNews.statusDraft");
+    };
+
     return (
         <AdminLayout>
             <div className="admin-news-page">
@@ -156,14 +163,15 @@ function AdminNews() {
                 <div className="admin-news-header">
                     <div>
                         <span className="admin-news-eyebrow">
-                            CONTENT MANAGEMENT
+                            {t("adminNews.eyebrow")}
                         </span>
 
-                        <h1>News Articles</h1>
+                        <h1>
+                            {t("adminNews.title")}
+                        </h1>
 
                         <p>
-                            Create, edit, publish, and manage
-                            your news articles.
+                            {t("adminNews.subtitle")}
                         </p>
                     </div>
 
@@ -172,10 +180,9 @@ function AdminNews() {
                         className="admin-news-create-button"
                     >
                         <span>+</span>
-                        Create Article
+                        {t("adminNews.createArticle")}
                     </Link>
                 </div>
-
 
                 {/* ALERTS */}
                 {message && (
@@ -189,7 +196,7 @@ function AdminNews() {
                         <button
                             type="button"
                             onClick={() => setMessage("")}
-                            aria-label="Dismiss message"
+                            aria-label={t("admin.dismissMessage")}
                         >
                             ×
                         </button>
@@ -207,13 +214,12 @@ function AdminNews() {
                         <button
                             type="button"
                             onClick={() => setError("")}
-                            aria-label="Dismiss error"
+                            aria-label={t("admin.dismissError")}
                         >
                             ×
                         </button>
                     </div>
                 )}
-
 
                 {/* SUMMARY */}
                 <div className="admin-news-summary">
@@ -223,7 +229,10 @@ function AdminNews() {
                         </div>
 
                         <div>
-                            <span>Total Articles</span>
+                            <span>
+                                {t("adminNews.totalArticles")}
+                            </span>
+
                             <strong>{news.length}</strong>
                         </div>
                     </div>
@@ -234,7 +243,10 @@ function AdminNews() {
                         </div>
 
                         <div>
-                            <span>Published</span>
+                            <span>
+                                {t("adminNews.published")}
+                            </span>
+
                             <strong>
                                 {
                                     news.filter(
@@ -253,7 +265,10 @@ function AdminNews() {
                         </div>
 
                         <div>
-                            <span>Drafts</span>
+                            <span>
+                                {t("adminNews.drafts")}
+                            </span>
+
                             <strong>
                                 {
                                     news.filter(
@@ -267,16 +282,17 @@ function AdminNews() {
                     </div>
                 </div>
 
-
                 {/* CONTENT CARD */}
                 <div className="admin-news-card">
 
                     <div className="admin-news-card-header">
                         <div>
-                            <h2>All Articles</h2>
+                            <h2>
+                                {t("adminNews.allArticles")}
+                            </h2>
+
                             <p>
-                                Manage your published articles
-                                and drafts.
+                                {t("adminNews.allArticlesText")}
                             </p>
                         </div>
 
@@ -296,17 +312,16 @@ function AdminNews() {
                                 ↻
                             </span>
 
-                            Refresh
+                            {t("adminNews.refresh")}
                         </button>
                     </div>
-
 
                     {loading ? (
                         <div className="admin-news-loading">
                             <div className="admin-news-spinner"></div>
 
                             <p>
-                                Loading articles...
+                                {t("adminNews.loading")}
                             </p>
                         </div>
                     ) : news.length === 0 ? (
@@ -316,19 +331,18 @@ function AdminNews() {
                             </div>
 
                             <h3>
-                                No articles yet
+                                {t("adminNews.emptyTitle")}
                             </h3>
 
                             <p>
-                                Create your first news article
-                                to get started.
+                                {t("adminNews.emptyText")}
                             </p>
 
                             <Link
                                 to="/admin/news/create"
                                 className="admin-news-empty-button"
                             >
-                                Create First Article
+                                {t("adminNews.emptyAction")}
                             </Link>
                         </div>
                     ) : (
@@ -336,12 +350,26 @@ function AdminNews() {
                             <table className="admin-news-table">
                                 <thead>
                                     <tr>
-                                        <th>ARTICLE</th>
-                                        <th>CATEGORY</th>
-                                        <th>STATUS</th>
-                                        <th>PUBLISHED</th>
+                                        <th>
+                                            {t("adminNews.thArticle")}
+                                        </th>
+
+                                        <th>
+                                            {t("adminNews.thCategory")}
+                                        </th>
+
+                                        <th>
+                                            {t("adminNews.thStatus")}
+                                        </th>
+
+                                        <th>
+                                            {t(
+                                                "adminNews.thPublished"
+                                            )}
+                                        </th>
+
                                         <th className="admin-news-actions-heading">
-                                            ACTIONS
+                                            {t("adminNews.thActions")}
                                         </th>
                                     </tr>
                                 </thead>
@@ -397,7 +425,9 @@ function AdminNews() {
 
                                                         {article.is_featured && (
                                                             <span className="admin-news-featured-badge">
-                                                                Featured
+                                                                {t(
+                                                                    "adminNews.featured"
+                                                                )}
                                                             </span>
                                                         )}
                                                     </div>
@@ -420,8 +450,9 @@ function AdminNews() {
                                                 >
                                                     <span></span>
 
-                                                    {article.status ||
-                                                        "draft"}
+                                                    {getStatusLabel(
+                                                        article.status
+                                                    )}
                                                 </span>
                                             </td>
 
@@ -456,7 +487,7 @@ function AdminNews() {
                                                         }
                                                     >
                                                         <span>✎</span>
-                                                        Edit
+                                                        {t("adminNews.edit")}
                                                     </button>
 
                                                     <button
@@ -477,12 +508,16 @@ function AdminNews() {
                                                         article.news_id ? (
                                                             <>
                                                                 <span className="admin-news-button-spinner"></span>
-                                                                Deleting
+                                                                {t(
+                                                                    "adminNews.deleting"
+                                                                )}
                                                             </>
                                                         ) : (
                                                             <>
                                                                 <span>⌫</span>
-                                                                Delete
+                                                                {t(
+                                                                    "adminNews.delete"
+                                                                )}
                                                             </>
                                                         )}
                                                     </button>

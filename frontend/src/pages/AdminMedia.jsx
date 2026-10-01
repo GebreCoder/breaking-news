@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
+import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
 function AdminMedia() {
+    const { t } = useLanguage();
+
     const [media, setMedia] = useState([]);
     const [file, setFile] = useState(null);
     const [altText, setAltText] = useState("");
@@ -31,7 +34,7 @@ function AdminMedia() {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                    "Failed to load media"
+                        t("adminMedia.loadError")
                 );
             }
 
@@ -61,9 +64,7 @@ function AdminMedia() {
         setError("");
 
         if (!file) {
-            setError(
-                "Please select an image."
-            );
+            setError(t("adminMedia.selectFile"));
 
             return;
         }
@@ -102,13 +103,11 @@ function AdminMedia() {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                    "Upload failed"
+                        t("adminMedia.uploadError")
                 );
             }
 
-            setMessage(
-                "Image uploaded successfully."
-            );
+            setMessage(t("adminMedia.uploadSuccess"));
 
             setFile(null);
             setAltText("");
@@ -132,7 +131,7 @@ function AdminMedia() {
 
     const handleDelete = async (id) => {
         const confirmed = window.confirm(
-            "Are you sure you want to delete this image?"
+            t("adminMedia.deleteConfirm")
         );
 
         if (!confirmed) {
@@ -160,13 +159,11 @@ function AdminMedia() {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                    "Failed to delete media"
+                        t("adminMedia.deleteError")
                 );
             }
 
-            setMessage(
-                "Image deleted successfully."
-            );
+            setMessage(t("adminMedia.deleteSuccess"));
 
             await loadMedia();
 
@@ -188,11 +185,11 @@ function AdminMedia() {
                 <div>
 
                     <h1>
-                        Media Management
+                        {t("adminMedia.title")}
                     </h1>
 
                     <p>
-                        Upload and manage images used by your news articles.
+                        {t("adminMedia.subtitle")}
                     </p>
 
                 </div>
@@ -209,12 +206,11 @@ function AdminMedia() {
                         <div>
 
                             <h2>
-                                Upload Image
+                                {t("adminMedia.uploadTitle")}
                             </h2>
 
                             <p>
-                                Supported formats: JPG, PNG, WEBP and GIF.
-                                Maximum size: 5 MB.
+                                {t("adminMedia.uploadText")}
                             </p>
 
                         </div>
@@ -238,7 +234,7 @@ function AdminMedia() {
                         <div className="form-group">
 
                             <label htmlFor="mediaFile">
-                                Image
+                                {t("adminMedia.image")}
                             </label>
 
                             <input
@@ -257,7 +253,7 @@ function AdminMedia() {
                         <div className="form-group">
 
                             <label htmlFor="altText">
-                                Alt Text
+                                {t("adminMedia.altText")}
                             </label>
 
                             <input
@@ -269,7 +265,9 @@ function AdminMedia() {
                                         event.target.value
                                     )
                                 }
-                                placeholder="Describe the image"
+                                placeholder={t(
+                                    "adminMedia.altPlaceholder"
+                                )}
                             />
 
                         </div>
@@ -282,8 +280,8 @@ function AdminMedia() {
                                 disabled={uploading}
                             >
                                 {uploading
-                                    ? "Uploading..."
-                                    : "Upload Image"}
+                                    ? t("adminMedia.uploading")
+                                    : t("adminMedia.uploadAction")}
                             </button>
 
                         </div>
@@ -298,14 +296,14 @@ function AdminMedia() {
                     <div>
 
                         <h2>
-                            Media Library
+                            {t("adminMedia.library")}
                         </h2>
 
                         <p>
                             {media.length}{" "}
                             {media.length === 1
-                                ? "image"
-                                : "images"}
+                                ? t("adminMedia.countOne")
+                                : t("adminMedia.countMany")}
                         </p>
 
                     </div>
@@ -315,7 +313,7 @@ function AdminMedia() {
                 {loading ? (
 
                     <div className="admin-table-message">
-                        Loading media...
+                        {t("adminMedia.loading")}
                     </div>
 
                 ) : media.length === 0 ? (
@@ -323,11 +321,11 @@ function AdminMedia() {
                     <div className="admin-table-message">
 
                         <h3>
-                            No media uploaded yet
+                            {t("adminMedia.emptyTitle")}
                         </h3>
 
                         <p>
-                            Upload your first image to build your media library.
+                            {t("adminMedia.emptyText")}
                         </p>
 
                     </div>
@@ -380,7 +378,7 @@ function AdminMedia() {
                                             )
                                         }
                                     >
-                                        Delete
+                                        {t("adminMedia.delete")}
                                     </button>
 
                                 </div>
