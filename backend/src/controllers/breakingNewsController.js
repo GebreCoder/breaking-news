@@ -1,10 +1,9 @@
-
 const pool = require("../config/db");
 
 // GET all breaking news for admin
 const getBreakingNews = async (req, res) => {
-    try {
-        const result = await pool.query(`
+  try {
+    const result = await pool.query(`
             SELECT
                 b.breaking_news_id,
                 b.news_id,
@@ -22,24 +21,20 @@ const getBreakingNews = async (req, res) => {
             ORDER BY b.created_at DESC
         `);
 
-        res.json(result.rows);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching breaking news:", error);
 
-    } catch (error) {
-        console.error(
-            "Error fetching breaking news:",
-            error
-        );
-
-        res.status(500).json({
-            message: "Failed to fetch breaking news"
-        });
-    }
+    res.status(500).json({
+      message: "Failed to fetch breaking news",
+    });
+  }
 };
 
 // GET active breaking news for public website
 const getActiveBreakingNews = async (req, res) => {
-    try {
-        const result = await pool.query(`
+  try {
+    const result = await pool.query(`
             SELECT
                 b.breaking_news_id,
                 b.news_id,
@@ -63,51 +58,40 @@ const getActiveBreakingNews = async (req, res) => {
             ORDER BY b.created_at DESC
         `);
 
-        res.json(result.rows);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching active breaking news:", error);
 
-    } catch (error) {
-        console.error(
-            "Error fetching active breaking news:",
-            error
-        );
-
-        res.status(500).json({
-            message: "Failed to fetch active breaking news"
-        });
-    }
+    res.status(500).json({
+      message: "Failed to fetch active breaking news",
+    });
+  }
 };
 
 // CREATE breaking news
 const createBreakingNews = async (req, res) => {
-    try {
-        const {
-            headline,
-            newsId,
-            linkUrl,
-            startsAt,
-            endsAt
-        } = req.body;
+  try {
+    const { headline, newsId, linkUrl, startsAt, endsAt } = req.body;
 
-        if (!headline || !headline.trim()) {
-            return res.status(400).json({
-                message: "Headline is required"
-            });
-        }
+    if (!headline || !headline.trim()) {
+      return res.status(400).json({
+        message: "Headline is required",
+      });
+    }
 
-        if (startsAt && endsAt) {
-            const start = new Date(startsAt);
-            const end = new Date(endsAt);
+    if (startsAt && endsAt) {
+      const start = new Date(startsAt);
+      const end = new Date(endsAt);
 
-            if (start >= end) {
-                return res.status(400).json({
-                    message:
-                        "End time must be later than start time"
-                });
-            }
-        }
+      if (start >= end) {
+        return res.status(400).json({
+          message: "End time must be later than start time",
+        });
+      }
+    }
 
-        const result = await pool.query(
-            `INSERT INTO breaking_news (
+    const result = await pool.query(
+      `INSERT INTO breaking_news (
                 news_id,
                 headline,
                 link_url,
@@ -117,124 +101,175 @@ const createBreakingNews = async (req, res) => {
             )
             VALUES ($1, $2, $3, TRUE, $4, $5)
             RETURNING *`,
-            [
-                newsId || null,
-                headline.trim(),
-                linkUrl || null,
-                startsAt || null,
-                endsAt || null
-            ]
-        );
+      [
+        newsId || null,
+        headline.trim(),
+        linkUrl || null,
+        startsAt || null,
+        endsAt || null,
+      ],
+    );
 
-        res.status(201).json({
-            message:
-                "Breaking news created successfully",
-            breakingNews: result.rows[0]
-        });
+    res.status(201).json({
+      message: "Breaking news created successfully",
+      breakingNews: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error creating breaking news:", error);
 
-    } catch (error) {
-        console.error(
-            "Error creating breaking news:",
-            error
-        );
-
-        res.status(500).json({
-            message:
-                "Failed to create breaking news"
-        });
-    }
+    res.status(500).json({
+      message: "Failed to create breaking news",
+    });
+  }
 };
 
 // UPDATE active status
 const updateBreakingNews = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { isActive } = req.body;
+  try {
+    const { id } = req.params;
+    const { isActive } = req.body;
 
-        if (typeof isActive !== "boolean") {
-            return res.status(400).json({
-                message: "isActive must be true or false"
-            });
-        }
+    if (typeof isActive !== "boolean") {
+      return res.status(400).json({
+        message: "isActive must be true or false",
+      });
+    }
 
-        const result = await pool.query(
-            `UPDATE breaking_news
+    const result = await pool.query(
+      `UPDATE breaking_news
              SET
                 is_active = $1,
                 updated_at = CURRENT_TIMESTAMP
              WHERE breaking_news_id = $2
              RETURNING *`,
-            [isActive, id]
-        );
+      [isActive, id],
+    );
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                message:
-                    "Breaking news item not found"
-            });
-        }
-
-        res.json({
-            message:
-                "Breaking news updated successfully",
-            breakingNews: result.rows[0]
-        });
-
-    } catch (error) {
-        console.error(
-            "Error updating breaking news:",
-            error
-        );
-
-        res.status(500).json({
-            message:
-                "Failed to update breaking news"
-        });
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Breaking news item not found",
+      });
     }
+
+    res.json({
+      message: "Breaking news updated successfully",
+      breakingNews: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error updating breaking news:", error);
+
+    res.status(500).json({
+      message: "Failed to update breaking news",
+    });
+  }
+};
+
+// UPDATE breaking news details without changing its active status
+const updateBreakingNewsDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { headline, newsId, linkUrl, startsAt, endsAt } = req.body;
+
+    if (typeof headline !== "string" || !headline.trim()) {
+      return res.status(400).json({
+        message: "Headline is required",
+      });
+    }
+
+    const start = startsAt ? new Date(startsAt) : null;
+    const end = endsAt ? new Date(endsAt) : null;
+
+    if (
+      (start && Number.isNaN(start.getTime())) ||
+      (end && Number.isNaN(end.getTime())) ||
+      (start && end && start >= end)
+    ) {
+      return res.status(400).json({
+        message:
+          "Start and end times must be valid, and end time must be later than start time",
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE breaking_news
+             SET news_id = $1,
+                 headline = $2,
+                 link_url = $3,
+                 starts_at = $4,
+                 ends_at = $5,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE breaking_news_id = $6
+             RETURNING *`,
+      [
+        newsId || null,
+        headline.trim(),
+        typeof linkUrl === "string" && linkUrl.trim() ? linkUrl.trim() : null,
+        startsAt || null,
+        endsAt || null,
+        id,
+      ],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Breaking news item not found",
+      });
+    }
+
+    res.json({
+      message: "Breaking news details updated successfully",
+      breakingNews: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error updating breaking news details:", error);
+
+    if (error.code === "23503") {
+      return res.status(400).json({
+        message: "The selected related article does not exist",
+      });
+    }
+
+    res.status(500).json({
+      message: "Failed to update breaking news details",
+    });
+  }
 };
 
 // DELETE breaking news
 const deleteBreakingNews = async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        const result = await pool.query(
-            `DELETE FROM breaking_news
+    const result = await pool.query(
+      `DELETE FROM breaking_news
              WHERE breaking_news_id = $1
              RETURNING breaking_news_id`,
-            [id]
-        );
+      [id],
+    );
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                message:
-                    "Breaking news item not found"
-            });
-        }
-
-        res.json({
-            message:
-                "Breaking news deleted successfully"
-        });
-
-    } catch (error) {
-        console.error(
-            "Error deleting breaking news:",
-            error
-        );
-
-        res.status(500).json({
-            message:
-                "Failed to delete breaking news"
-        });
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Breaking news item not found",
+      });
     }
+
+    res.json({
+      message: "Breaking news deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting breaking news:", error);
+
+    res.status(500).json({
+      message: "Failed to delete breaking news",
+    });
+  }
 };
 
 module.exports = {
-    getBreakingNews,
-    getActiveBreakingNews,
-    createBreakingNews,
-    updateBreakingNews,
-    deleteBreakingNews
+  getBreakingNews,
+  getActiveBreakingNews,
+  createBreakingNews,
+  updateBreakingNews,
+  updateBreakingNewsDetails,
+  deleteBreakingNews,
 };
-

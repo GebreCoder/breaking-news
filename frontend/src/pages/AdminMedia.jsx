@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
+import ConfirmationDialog from "../components/ConfirmationDialog";
+import LanguageToggle from "../components/LanguageToggle";
 import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
@@ -9,6 +11,7 @@ function AdminMedia() {
     const [media, setMedia] = useState([]);
     const [file, setFile] = useState(null);
     const [altText, setAltText] = useState("");
+    const [deleteTarget, setDeleteTarget] = useState(null);
 
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
@@ -53,8 +56,12 @@ function AdminMedia() {
         }
     };
 
-    useEffect(() => {
+    const loadMediaOnMount = useEffectEvent(() => {
         loadMedia();
+    });
+
+    useEffect(() => {
+        Promise.resolve().then(loadMediaOnMount);
     }, []);
 
     const handleUpload = async (event) => {
@@ -129,14 +136,17 @@ function AdminMedia() {
         }
     };
 
-    const handleDelete = async (id) => {
-        const confirmed = window.confirm(
-            t("adminMedia.deleteConfirm")
-        );
+    const handleDelete = (item) => {
+        setDeleteTarget(item);
+    };
 
-        if (!confirmed) {
+    const confirmDelete = async () => {
+        if (!deleteTarget) {
             return;
         }
+
+        const { media_id: id } = deleteTarget;
+        setDeleteTarget(null);
 
         setMessage("");
         setError("");
@@ -193,6 +203,10 @@ function AdminMedia() {
                     </p>
 
                 </div>
+
+                <LanguageToggle
+                    className="lang-toggle-light admin-header-language"
+                />
 
             </header>
 
@@ -373,9 +387,7 @@ function AdminMedia() {
                                         type="button"
                                         className="table-action delete"
                                         onClick={() =>
-                                            handleDelete(
-                                                item.media_id
-                                            )
+                                            handleDelete(item)
                                         }
                                     >
                                         {t("adminMedia.delete")}
@@ -393,6 +405,15 @@ function AdminMedia() {
 
             </main>
 
+            <ConfirmationDialog
+                open={Boolean(deleteTarget)}
+                title={t("adminMedia.deleteConfirmTitle")}
+                description={`${t("adminMedia.deleteConfirm")}\n\n${deleteTarget?.file_name || ""}`}
+                confirmLabel={t("confirmation.delete")}
+                cancelLabel={t("confirmation.cancel")}
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteTarget(null)}
+            />
         </AdminLayout>
     );
 }

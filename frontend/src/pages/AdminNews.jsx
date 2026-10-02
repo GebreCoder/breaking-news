@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useEffectEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
+import ConfirmationDialog from "../components/ConfirmationDialog";
+import LanguageToggle from "../components/LanguageToggle";
 import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
@@ -11,6 +13,8 @@ function AdminNews() {
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [viewingNewsId, setViewingNewsId] = useState(null);
 
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
@@ -51,20 +55,25 @@ function AdminNews() {
         }
     };
 
-    useEffect(() => {
+    const loadNewsOnMount = useEffectEvent(() => {
         loadNews();
+    });
+
+    useEffect(() => {
+        Promise.resolve().then(loadNewsOnMount);
     }, []);
 
-    const handleDelete = async (id, title) => {
-        const confirmed = window.confirm(
-            `${t("adminNews.deleteConfirmText", { title })}\n\n${t(
-                "adminNews.deleteConfirmWarning"
-            )}`
-        );
+    const handleDelete = (id, title) => {
+        setDeleteTarget({ id, title });
+    };
 
-        if (!confirmed) {
+    const confirmDelete = async () => {
+        if (!deleteTarget) {
             return;
         }
+
+        const { id } = deleteTarget;
+        setDeleteTarget(null);
 
         setMessage("");
         setError("");
@@ -174,6 +183,10 @@ function AdminNews() {
                             {t("adminNews.subtitle")}
                         </p>
                     </div>
+
+                    <LanguageToggle
+                        className="lang-toggle-light admin-header-language"
+                    />
 
                     <Link
                         to="/admin/news/create"
@@ -376,11 +389,8 @@ function AdminNews() {
 
                                 <tbody>
                                     {news.map((article) => (
-                                        <tr
-                                            key={
-                                                article.news_id
-                                            }
-                                        >
+                                        <Fragment key={article.news_id}>
+                                        <tr>
                                             <td>
                                                 <div className="admin-news-article-cell">
 
@@ -480,6 +490,19 @@ function AdminNews() {
                                                     <button
                                                         type="button"
                                                         className="admin-news-edit-button"
+                                                        aria-expanded={viewingNewsId === article.news_id}
+                                                        onClick={() => setViewingNewsId(
+                                                            viewingNewsId === article.news_id
+                                                                ? null
+                                                                : article.news_id
+                                                        )}
+                                                    >
+                                                        {t(viewingNewsId === article.news_id ? "adminNews.hideDetails" : "adminNews.details")}
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        className="admin-news-edit-button"
                                                         onClick={() =>
                                                             navigate(
                                                                 `/admin/news/edit/${article.news_id}`
@@ -525,6 +548,37 @@ function AdminNews() {
                                                 </div>
                                             </td>
                                         </tr>
+                                        {viewingNewsId === article.news_id && (
+                                            <tr className="admin-news-details-row">
+                                                <td colSpan="5">
+                                                    <div className="admin-news-details">
+                                                        <div>
+                                                            <strong>{t("adminNews.detailsSlug")}</strong>
+                                                            <code>{article.slug}</code>
+                                                        </div>
+                                                        {article.created_at && (
+                                                            <div>
+                                                                <strong>{t("adminNews.detailsCreated")}</strong>
+                                                                <span>{formatDate(article.created_at)}</span>
+                                                            </div>
+                                                        )}
+                                                        {article.image_caption && (
+                                                            <div>
+                                                                <strong>{t("adminNews.detailsImageCaption")}</strong>
+                                                                <span>{article.image_caption}</span>
+                                                            </div>
+                                                        )}
+                                                        {article.content && (
+                                                            <div className="admin-news-details-content">
+                                                                <strong>{t("adminNews.detailsContent")}</strong>
+                                                                <p>{article.content}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                        </Fragment>
                                     ))}
                                 </tbody>
                             </table>
@@ -533,6 +587,15 @@ function AdminNews() {
 
                 </div>
             </div>
+            <ConfirmationDialog
+                open={Boolean(deleteTarget)}
+                title={t("adminNews.deleteConfirmTitle")}
+                description={`${t("adminNews.deleteConfirmText", { title: deleteTarget?.title || "" })}\n\n${t("adminNews.deleteConfirmWarning")}`}
+                confirmLabel={t("confirmation.delete")}
+                cancelLabel={t("confirmation.cancel")}
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteTarget(null)}
+            />
         </AdminLayout>
     );
 }

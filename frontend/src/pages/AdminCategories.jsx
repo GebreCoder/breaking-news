@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useEffectEvent, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
+import ConfirmationDialog from "../components/ConfirmationDialog";
+import LanguageToggle from "../components/LanguageToggle";
 import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
@@ -11,6 +13,9 @@ function AdminCategories() {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [displayOrder, setDisplayOrder] = useState(0);
+    const [editingCategory, setEditingCategory] = useState(null);
+    const [viewingCategoryId, setViewingCategoryId] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null);
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -21,24 +26,40 @@ function AdminCategories() {
     const loadCategories = async () => {
         try {
             const response = await fetch(
-                "http://localhost:5000/api/categories"
+                "http://localhost:5000/api/categories/admin",
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("adminToken")}`
+                    }
+                }
             );
 
             const data = await response.json();
 
-            setCategories(data);
+            if (!response.ok) {
+                throw new Error(
+                    data.message || t("adminCategories.loadError")
+                );
+            }
+
+            setCategories(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error(
                 "Error loading categories:",
                 error
             );
+            setError(error.message || t("adminCategories.loadError"));
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
+    const loadCategoriesOnMount = useEffectEvent(() => {
         loadCategories();
+    });
+
+    useEffect(() => {
+        Promise.resolve().then(loadCategoriesOnMount);
     }, []);
 
     const handleSubmit = async (event) => {
@@ -51,10 +72,13 @@ function AdminCategories() {
         try {
             const token = localStorage.getItem("adminToken");
 
+            const isEditing = Boolean(editingCategory);
             const response = await fetch(
-                "http://localhost:5000/api/categories",
+                isEditing
+                    ? `http://localhost:5000/api/categories/${editingCategory.category_id}`
+                    : "http://localhost:5000/api/categories",
                 {
-                    method: "POST",
+                    method: isEditing ? "PUT" : "POST",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`
@@ -72,16 +96,27 @@ function AdminCategories() {
             if (!response.ok) {
                 setError(
                     data.message ||
-                        t("adminCategories.createError")
+                        t(
+                            isEditing
+                                ? "adminCategories.updateError"
+                                : "adminCategories.createError"
+                        )
                 );
                 return;
             }
 
-            setSuccess(t("adminCategories.createSuccess"));
+            setSuccess(
+                t(
+                    isEditing
+                        ? "adminCategories.updateSuccess"
+                        : "adminCategories.createSuccess"
+                )
+            );
 
             setName("");
             setDescription("");
             setDisplayOrder(0);
+            setEditingCategory(null);
 
             await loadCategories();
         } catch (error) {
@@ -90,9 +125,87 @@ function AdminCategories() {
                 error
             );
 
-            setError(t("adminCategories.connectionError"));
+            setError(error.message || t("adminCategories.connectionError"));
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleEdit = (category) => {
+        setEditingCategory(category);
+        setName(category.name);
+        setDescription(category.description || "");
+        setDisplayOrder(category.display_order);
+        setError("");
+        setSuccess("");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingCategory(null);
+        setName("");
+        setDescription("");
+        setDisplayOrder(0);
+        setError("");
+    };
+
+    const handleCategoryStatus = (category, isActive) => {
+        if (!isActive) {
+            setDeleteTarget(category);
+            return;
+        }
+
+        updateCategoryStatus(category, true);
+    };
+
+    const confirmCategoryDeactivation = () => {
+        if (!deleteTarget) {
+            return;
+        }
+
+        const category = deleteTarget;
+        setDeleteTarget(null);
+        updateCategoryStatus(category, false);
+    };
+
+    const updateCategoryStatus = async (category, isActive) => {
+
+        setError("");
+        setSuccess("");
+
+        try {
+            const response = await fetch(
+                `http://localhost:5000/api/categories/${category.category_id}${isActive ? "/status" : ""}`,
+                {
+                    method: isActive ? "PATCH" : "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("adminToken")}`
+                    },
+                    ...(isActive
+                        ? { body: JSON.stringify({ isActive: true }) }
+                        : {})
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || t("adminCategories.actionError")
+                );
+            }
+
+            setSuccess(
+                t(
+                    isActive
+                        ? "adminCategories.activateSuccess"
+                        : "adminCategories.deactivateSuccess"
+                )
+            );
+            await loadCategories();
+        } catch (error) {
+            setError(error.message || t("adminCategories.actionError"));
         }
     };
 
@@ -112,6 +225,10 @@ function AdminCategories() {
                         {t("adminCategories.subtitle")}
                     </p>
                 </div>
+
+                <LanguageToggle
+                    className="lang-toggle-light admin-header-language"
+                />
 
                 <div className="admin-category-count">
                     <span>{categories.length}</span>
@@ -136,7 +253,11 @@ function AdminCategories() {
 
                             <div>
                                 <h2>
-                                    {t("adminCategories.createTitle")}
+                                    {t(
+                                        editingCategory
+                                            ? "adminCategories.editTitle"
+                                            : "adminCategories.createTitle"
+                                    )}
                                 </h2>
 
                                 <p>
@@ -156,7 +277,9 @@ function AdminCategories() {
                                 <div>
                                     <strong>
                                         {t(
-                                            "adminCategories.errorTitle"
+                                            editingCategory
+                                                ? "adminCategories.updateError"
+                                                : "adminCategories.errorTitle"
                                         )}
                                     </strong>
 
@@ -174,7 +297,9 @@ function AdminCategories() {
                                 <div>
                                     <strong>
                                         {t(
-                                            "adminCategories.successTitle"
+                                            editingCategory
+                                                ? "adminCategories.updateSuccess"
+                                                : "adminCategories.successTitle"
                                         )}
                                     </strong>
 
@@ -269,29 +394,42 @@ function AdminCategories() {
                                 </small>
                             </div>
 
-                            <button
-                                type="submit"
-                                className="admin-category-create-button"
-                                disabled={saving}
-                            >
-                                {saving ? (
-                                    <>
-                                        <span className="admin-category-spinner"></span>
-                                        {t(
-                                            "adminCategories.creating"
-                                        )}
-                                    </>
-                                ) : (
-                                    <>
-                                        <span className="admin-category-button-icon">
-                                            +
-                                        </span>
-                                        {t(
-                                            "adminCategories.createAction"
-                                        )}
-                                    </>
+                            <div className="admin-category-form-actions">
+                                <button
+                                    type="submit"
+                                    className="admin-category-create-button"
+                                    disabled={saving}
+                                >
+                                    {saving ? (
+                                        <>
+                                            <span className="admin-category-spinner"></span>
+                                            {t("adminCategories.saving")}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="admin-category-button-icon">
+                                                {editingCategory ? "✓" : "+"}
+                                            </span>
+                                            {t(
+                                                editingCategory
+                                                    ? "adminCategories.saveChanges"
+                                                    : "adminCategories.createAction"
+                                            )}
+                                        </>
+                                    )}
+                                </button>
+
+                                {editingCategory && (
+                                    <button
+                                        type="button"
+                                        className="admin-category-cancel-button"
+                                        onClick={handleCancelEdit}
+                                        disabled={saving}
+                                    >
+                                        {t("adminCategories.cancelEdit")}
+                                    </button>
                                 )}
-                            </button>
+                            </div>
                         </form>
                     </section>
 
@@ -324,10 +462,10 @@ function AdminCategories() {
                                 <span>
                                     {categories.length === 1
                                         ? t(
-                                              "adminCategories.activeOne"
+                                              "adminCategories.totalOne"
                                           )
                                         : t(
-                                              "adminCategories.activeMany"
+                                              "adminCategories.totalMany"
                                           )}
                                 </span>
                             </div>
@@ -391,17 +529,24 @@ function AdminCategories() {
                                                     "adminCategories.thOrder"
                                                 )}
                                             </th>
+                                            <th>
+                                                {t(
+                                                    "adminCategories.thStatus"
+                                                )}
+                                            </th>
+                                            <th>
+                                                {t(
+                                                    "adminCategories.thActions"
+                                                )}
+                                            </th>
                                         </tr>
                                     </thead>
 
                                     <tbody>
                                         {categories.map(
                                             (category) => (
-                                                <tr
-                                                    key={
-                                                        category.category_id
-                                                    }
-                                                >
+                                                <Fragment key={category.category_id}>
+                                                <tr>
                                                     <td>
                                                         <div className="admin-category-name-cell">
                                                             <div className="admin-category-avatar">
@@ -453,7 +598,66 @@ function AdminCategories() {
                                                             }
                                                         </span>
                                                     </td>
+
+                                                    <td>
+                                                        <span className={`admin-category-status ${category.is_active ? "active" : "inactive"}`}>
+                                                            {t(category.is_active ? "adminCategories.statusActive" : "adminCategories.statusInactive")}
+                                                        </span>
+                                                    </td>
+
+                                                    <td>
+                                                        <div className="admin-category-row-actions">
+                                                            <button
+                                                                type="button"
+                                                                className="admin-category-action-button"
+                                                                aria-expanded={viewingCategoryId === category.category_id}
+                                                                onClick={() => setViewingCategoryId(
+                                                                    viewingCategoryId === category.category_id
+                                                                        ? null
+                                                                        : category.category_id
+                                                                )}
+                                                            >
+                                                                {t(viewingCategoryId === category.category_id ? "adminCategories.hideDetails" : "adminCategories.details")}
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="admin-category-action-button"
+                                                                onClick={() => handleEdit(category)}
+                                                            >
+                                                                {t("adminCategories.edit")}
+                                                            </button>
+                                                            {category.is_active ? (
+                                                                <button
+                                                                    type="button"
+                                                                    className="admin-category-action-button danger"
+                                                                    onClick={() => handleCategoryStatus(category, false)}
+                                                                >
+                                                                    {t("adminCategories.delete")}
+                                                                </button>
+                                                            ) : (
+                                                                <button
+                                                                    type="button"
+                                                                    className="admin-category-action-button restore"
+                                                                    onClick={() => handleCategoryStatus(category, true)}
+                                                                >
+                                                                    {t("adminCategories.restore")}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </td>
                                                 </tr>
+                                                {viewingCategoryId === category.category_id && (
+                                                    <tr className="admin-category-details-row">
+                                                        <td colSpan="6">
+                                                            <div className="admin-category-details">
+                                                                <span><strong>{t("adminCategories.detailsStatus")}:</strong> {t(category.is_active ? "adminCategories.statusActive" : "adminCategories.statusInactive")}</span>
+                                                                <span><strong>{t("adminCategories.articleCount")}:</strong> {category.article_count}</span>
+                                                                <span><strong>{t("adminCategories.createdAt")}:</strong> {category.created_at ? new Date(category.created_at).toLocaleDateString() : "-"}</span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                                </Fragment>
                                             )
                                         )}
                                     </tbody>
@@ -463,6 +667,15 @@ function AdminCategories() {
                     </section>
                 </div>
             </main>
+            <ConfirmationDialog
+                open={Boolean(deleteTarget)}
+                title={t("adminCategories.deactivateTitle")}
+                description={`${t("adminCategories.deactivateConfirm")}\n\n${deleteTarget?.name || ""}`}
+                confirmLabel={t("confirmation.deactivate")}
+                cancelLabel={t("confirmation.cancel")}
+                onConfirm={confirmCategoryDeactivation}
+                onCancel={() => setDeleteTarget(null)}
+            />
         </AdminLayout>
     );
 }

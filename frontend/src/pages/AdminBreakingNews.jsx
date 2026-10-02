@@ -1,7 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
+import ConfirmationDialog from "../components/ConfirmationDialog";
+import LanguageToggle from "../components/LanguageToggle";
 import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
+
+const toDateTimeLocal = (value) => {
+    if (!value) {
+        return "";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    const pad = (part) => String(part).padStart(2, "0");
+
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
 
 function AdminBreakingNews() {
     const { t, locale } = useLanguage();
@@ -14,6 +32,8 @@ function AdminBreakingNews() {
     const [linkUrl, setLinkUrl] = useState("");
     const [startsAt, setStartsAt] = useState("");
     const [endsAt, setEndsAt] = useState("");
+    const [editingAlert, setEditingAlert] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null);
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -74,12 +94,18 @@ function AdminBreakingNews() {
         }
     };
 
-    useEffect(() => {
+    const loadDataOnMount = useEffectEvent(() => {
         loadData();
+    });
+
+    useEffect(() => {
+        Promise.resolve().then(loadDataOnMount);
     }, []);
 
     const handleCreate = async (event) => {
         event.preventDefault();
+
+        const isEditing = Boolean(editingAlert);
 
         setMessage("");
         setError("");
@@ -102,9 +128,11 @@ function AdminBreakingNews() {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/breaking-news",
+                isEditing
+                    ? `http://localhost:5000/api/breaking-news/${editingAlert.breaking_news_id}`
+                    : "http://localhost:5000/api/breaking-news",
                 {
-                    method: "POST",
+                    method: isEditing ? "PUT" : "POST",
 
                     headers: {
                         "Content-Type": "application/json",
@@ -135,13 +163,21 @@ function AdminBreakingNews() {
 
             if (!response.ok) {
                 throw new Error(
-                    data.message ||
-                        t("adminBreaking.createError")
+                        data.message ||
+                        t(
+                            isEditing
+                                ? "adminBreaking.updateError"
+                                : "adminBreaking.createError"
+                        )
                 );
             }
 
             setMessage(
-                t("adminBreaking.createSuccess")
+                t(
+                    isEditing
+                        ? "adminBreaking.updateSuccess"
+                        : "adminBreaking.createSuccess"
+                )
             );
 
             setHeadline("");
@@ -149,6 +185,7 @@ function AdminBreakingNews() {
             setLinkUrl("");
             setStartsAt("");
             setEndsAt("");
+            setEditingAlert(null);
 
             await loadData();
         } catch (error) {
@@ -161,6 +198,28 @@ function AdminBreakingNews() {
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleEdit = (item) => {
+        setEditingAlert(item);
+        setHeadline(item.headline || "");
+        setNewsId(item.news_id ? String(item.news_id) : "");
+        setLinkUrl(item.link_url || "");
+        setStartsAt(toDateTimeLocal(item.starts_at));
+        setEndsAt(toDateTimeLocal(item.ends_at));
+        setMessage("");
+        setError("");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingAlert(null);
+        setHeadline("");
+        setNewsId("");
+        setLinkUrl("");
+        setStartsAt("");
+        setEndsAt("");
+        setError("");
     };
 
     const handleToggle = async (
@@ -212,14 +271,17 @@ function AdminBreakingNews() {
         }
     };
 
-    const handleDelete = async (id) => {
-        const confirmed = window.confirm(
-            t("adminBreaking.deleteConfirm")
-        );
+    const handleDelete = (item) => {
+        setDeleteTarget(item);
+    };
 
-        if (!confirmed) {
+    const confirmDelete = async () => {
+        if (!deleteTarget) {
             return;
         }
+
+        const { breaking_news_id: id } = deleteTarget;
+        setDeleteTarget(null);
 
         setMessage("");
         setError("");
@@ -277,6 +339,10 @@ function AdminBreakingNews() {
                         {t("adminBreaking.subtitle")}
                     </p>
                 </div>
+
+                <LanguageToggle
+                    className="lang-toggle-light admin-header-language"
+                />
 
                 <div className="admin-breaking-count">
                     <span>
@@ -342,11 +408,19 @@ function AdminBreakingNews() {
 
                             <div>
                                 <h2>
-                                    {t("adminBreaking.createTitle")}
+                                    {t(
+                                        editingAlert
+                                            ? "adminBreaking.editTitle"
+                                            : "adminBreaking.createTitle"
+                                    )}
                                 </h2>
 
                                 <p>
-                                    {t("adminBreaking.createText")}
+                                    {t(
+                                        editingAlert
+                                            ? "adminBreaking.editText"
+                                            : "adminBreaking.createText"
+                                    )}
                                 </p>
                             </div>
                         </div>
@@ -604,17 +678,31 @@ function AdminBreakingNews() {
                                     {saving ? (
                                         <>
                                             <span className="admin-breaking-spinner"></span>
-                                            {t("adminBreaking.creating")}
+                                            {t("adminBreaking.saving")}
                                         </>
                                     ) : (
                                         <>
                                             <span className="admin-breaking-button-icon">
-                                                +
+                                                {editingAlert ? "✓" : "+"}
                                             </span>
-                                            {t("adminBreaking.createAction")}
+                                            {t(
+                                                editingAlert
+                                                    ? "adminBreaking.saveChanges"
+                                                    : "adminBreaking.createAction"
+                                            )}
                                         </>
                                     )}
                                 </button>
+                                {editingAlert && (
+                                    <button
+                                        type="button"
+                                        className="admin-breaking-action-button"
+                                        onClick={handleCancelEdit}
+                                        disabled={saving}
+                                    >
+                                        {t("adminBreaking.cancelEdit")}
+                                    </button>
+                                )}
                             </div>
                         </form>
                     </section>
@@ -860,6 +948,14 @@ function AdminBreakingNews() {
                                                         <button
                                                             type="button"
                                                             className="admin-breaking-action-button"
+                                                            onClick={() => handleEdit(item)}
+                                                        >
+                                                            {t("adminBreaking.edit")}
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            className="admin-breaking-action-button"
                                                             onClick={() =>
                                                                 handleToggle(
                                                                     item.breaking_news_id,
@@ -880,9 +976,7 @@ function AdminBreakingNews() {
                                                             type="button"
                                                             className="admin-breaking-action-button danger"
                                                             onClick={() =>
-                                                                handleDelete(
-                                                                    item.breaking_news_id
-                                                                )
+                                                                handleDelete(item)
                                                             }
                                                         >
                                                             {t("adminNews.delete")}
@@ -898,6 +992,15 @@ function AdminBreakingNews() {
                     )}
                 </section>
             </main>
+            <ConfirmationDialog
+                open={Boolean(deleteTarget)}
+                title={t("adminBreaking.deleteConfirmTitle")}
+                description={`${t("adminBreaking.deleteConfirm")}\n\n${deleteTarget?.headline || ""}`}
+                confirmLabel={t("confirmation.delete")}
+                cancelLabel={t("confirmation.cancel")}
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteTarget(null)}
+            />
         </AdminLayout>
     );
 }
