@@ -15,6 +15,7 @@ function AdminCategories() {
     const [displayOrder, setDisplayOrder] = useState(0);
     const [editingCategory, setEditingCategory] = useState(null);
     const [viewingCategoryId, setViewingCategoryId] = useState(null);
+    const [statusTarget, setStatusTarget] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
 
     const [loading, setLoading] = useState(true);
@@ -151,7 +152,7 @@ function AdminCategories() {
 
     const handleCategoryStatus = (category, isActive) => {
         if (!isActive) {
-            setDeleteTarget(category);
+            setStatusTarget(category);
             return;
         }
 
@@ -159,13 +160,53 @@ function AdminCategories() {
     };
 
     const confirmCategoryDeactivation = () => {
+        if (!statusTarget) {
+            return;
+        }
+
+        const category = statusTarget;
+        setStatusTarget(null);
+        updateCategoryStatus(category, false);
+    };
+
+    const handleCategoryDelete = (category) => {
+        setDeleteTarget(category);
+    };
+
+    const confirmCategoryDelete = async () => {
         if (!deleteTarget) {
             return;
         }
 
         const category = deleteTarget;
         setDeleteTarget(null);
-        updateCategoryStatus(category, false);
+        setError("");
+        setSuccess("");
+
+        try {
+            const response = await fetch(
+                `http://localhost:5000/api/categories/${category.category_id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("adminToken")}`
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || t("adminCategories.deleteError")
+                );
+            }
+
+            setSuccess(t("adminCategories.deleteSuccess"));
+            await loadCategories();
+        } catch (error) {
+            setError(error.message || t("adminCategories.deleteError"));
+        }
     };
 
     const updateCategoryStatus = async (category, isActive) => {
@@ -175,16 +216,14 @@ function AdminCategories() {
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/categories/${category.category_id}${isActive ? "/status" : ""}`,
+                `http://localhost:5000/api/categories/${category.category_id}/status`,
                 {
-                    method: isActive ? "PATCH" : "DELETE",
+                    method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${localStorage.getItem("adminToken")}`
                     },
-                    ...(isActive
-                        ? { body: JSON.stringify({ isActive: true }) }
-                        : {})
+                    body: JSON.stringify({ isActive })
                 }
             );
 
@@ -632,7 +671,7 @@ function AdminCategories() {
                                                                     className="admin-category-action-button danger"
                                                                     onClick={() => handleCategoryStatus(category, false)}
                                                                 >
-                                                                    {t("adminCategories.delete")}
+                                                                    {t("adminCategories.deactivate")}
                                                                 </button>
                                                             ) : (
                                                                 <button
@@ -640,9 +679,16 @@ function AdminCategories() {
                                                                     className="admin-category-action-button restore"
                                                                     onClick={() => handleCategoryStatus(category, true)}
                                                                 >
-                                                                    {t("adminCategories.restore")}
+                                                                    {t("adminCategories.activate")}
                                                                 </button>
                                                             )}
+                                                            <button
+                                                                type="button"
+                                                                className="admin-category-action-button danger"
+                                                                onClick={() => handleCategoryDelete(category)}
+                                                            >
+                                                                {t("adminCategories.delete")}
+                                                            </button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -668,12 +714,21 @@ function AdminCategories() {
                 </div>
             </main>
             <ConfirmationDialog
-                open={Boolean(deleteTarget)}
+                open={Boolean(statusTarget)}
                 title={t("adminCategories.deactivateTitle")}
-                description={`${t("adminCategories.deactivateConfirm")}\n\n${deleteTarget?.name || ""}`}
+                description={`${t("adminCategories.deactivateConfirm")}\n\n${statusTarget?.name || ""}`}
                 confirmLabel={t("confirmation.deactivate")}
                 cancelLabel={t("confirmation.cancel")}
                 onConfirm={confirmCategoryDeactivation}
+                onCancel={() => setStatusTarget(null)}
+            />
+            <ConfirmationDialog
+                open={Boolean(deleteTarget)}
+                title={t("adminCategories.permanentDeleteTitle")}
+                description={`${t("adminCategories.permanentDeleteConfirm")}\n\n${deleteTarget?.name || ""}`}
+                confirmLabel={t("confirmation.delete")}
+                cancelLabel={t("confirmation.cancel")}
+                onConfirm={confirmCategoryDelete}
                 onCancel={() => setDeleteTarget(null)}
             />
         </AdminLayout>

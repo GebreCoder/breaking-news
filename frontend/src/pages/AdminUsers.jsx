@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AdminLayout from "../components/AdminLayout";
 import "../App.css";
 
 function AdminUsers() {
@@ -137,6 +138,7 @@ function AdminUsers() {
     };
 
     return (
+        <AdminLayout>
         <div className="admin-page">
 
             <div className="admin-page-header">
@@ -352,6 +354,7 @@ function AdminUsers() {
             </div>
 
         </div>
+        </AdminLayout>
     );
 }
 
