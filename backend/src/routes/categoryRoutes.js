@@ -6,7 +6,7 @@ const {
   getCategoryBySlug,
   createCategory,
   updateCategory,
-  deactivateCategory,
+  deleteCategory,
   setCategoryStatus,
 } = require("../controllers/categoryController");
 
@@ -22,7 +22,7 @@ router.get("/:slug", getCategoryBySlug);
 // Admin
 router.post("/", authenticateToken, createCategory);
 router.put("/:id", authenticateToken, updateCategory);
-router.delete("/:id", authenticateToken, deactivateCategory);
+router.delete("/:id", authenticateToken, deleteCategory);
 router.patch("/:id/status", authenticateToken, setCategoryStatus);
 
 module.exports = router;

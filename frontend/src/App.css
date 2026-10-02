@@ -5620,7 +5620,7 @@ a.breaking-headline:hover {
 }
 
 .admin-category-row-actions {
-  min-width: 250px;
+  min-width: 320px;
   flex-wrap: nowrap;
   white-space: nowrap;
 }
@@ -6877,6 +6877,24 @@ a.breaking-headline:hover {
 
 .admin-news-table tbody tr:hover {
   background: #fafcfd;
+}
+
+.admin-table th:not(:last-child),
+.admin-table td:not(:last-child),
+.admin-category-table th:not(:last-child),
+.admin-category-table td:not(:last-child),
+.admin-news-table th:not(:last-child),
+.admin-news-table td:not(:last-child),
+.admin-breaking-table th:not(:last-child),
+.admin-breaking-table td:not(:last-child) {
+  border-right: 1px solid #d3d9de;
+}
+
+.admin-category-table th:not(:last-child),
+.admin-table th:not(:last-child),
+.admin-news-table th:not(:last-child),
+.admin-breaking-table th:not(:last-child) {
+  border-right-color: #454545;
 }
 
 .admin-news-actions-heading {
@@ -8417,15 +8435,15 @@ a.breaking-headline:hover {
 }
 
 .admin-table th {
-    background: #f7f9fb;
-    color: #596673;
+  background: #111111;
+  color: #ffffff;
     padding: 14px 20px;
     text-align: left;
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    border-bottom: 1px solid #e1e6eb;
+    border-bottom: 1px solid #303030;
     white-space: nowrap;
 }
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AdminLayout from "../components/AdminLayout";
 import "../App.css";
 
 function AdminAuditLog() {
@@ -56,6 +57,7 @@ function AdminAuditLog() {
     };
 
     return (
+        <AdminLayout>
         <div className="admin-page">
 
             {/* Page Header */}
@@ -181,6 +183,7 @@ function AdminAuditLog() {
             </div>
 
         </div>
+        </AdminLayout>
     );
 }
 

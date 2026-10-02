@@ -172,15 +172,13 @@ const updateCategory = async (req, res) => {
   }
 };
 
-// DEACTIVATE category without breaking news references
-const deactivateCategory = async (req, res) => {
+// DELETE category permanently when no news references it
+const deleteCategory = async (req, res) => {
   try {
     const result = await pool.query(
-      `UPDATE categories
-             SET is_active = FALSE,
-                 updated_at = CURRENT_TIMESTAMP
+      `DELETE FROM categories
              WHERE category_id = $1
-             RETURNING category_id`,
+             RETURNING category_id, name`,
       [req.params.id],
     );
 
@@ -190,14 +188,29 @@ const deactivateCategory = async (req, res) => {
       });
     }
 
+    await createAuditLog({
+      adminId: req.admin.adminId,
+      action: "DELETE_CATEGORY",
+      entityType: "Category",
+      entityId: result.rows[0].category_id,
+      description: `Permanently deleted category "${result.rows[0].name}"`,
+      ipAddress: req.ip,
+    });
+
     res.json({
-      message: "Category deactivated successfully",
+      message: "Category deleted successfully",
     });
   } catch (error) {
-    console.error("Error deactivating category:", error);
+    console.error("Error deleting category:", error);
+
+    if (error.code === "23503") {
+      return res.status(409).json({
+        message: "This category has news articles. Reassign or delete those articles before permanently deleting the category.",
+      });
+    }
 
     res.status(500).json({
-      message: "Failed to deactivate category",
+      message: "Failed to delete category",
     });
   }
 };
@@ -311,6 +324,6 @@ module.exports = {
   getCategoryBySlug,
   createCategory,
   updateCategory,
-  deactivateCategory,
+  deleteCategory,
   setCategoryStatus,
 };
