@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const { createAuditLog } = require("../services/auditLogService");
 
 // GET all active categories
 const getCategories = async (req, res) => {
@@ -98,6 +99,15 @@ const createCategory = async (req, res) => {
                 Number(displayOrder) || 0
             ]
         );
+
+        await createAuditLog({
+            adminId: req.admin.adminId,
+            action: "CREATE_CATEGORY",
+            entityType: "Category",
+            entityId: result.rows[0].category_id,
+            description: `Created category "${result.rows[0].name}"`,
+            ipAddress: req.ip
+        });
 
         res.status(201).json({
             message: "Category created successfully",

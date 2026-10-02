@@ -178,3 +178,43 @@ VALUES
     ('facebook_url', ''),
     ('x_url', ''),
     ('telegram_url', '');
+    -- ============================================================
+-- 7. AUDIT LOGS
+-- ============================================================
+
+CREATE TABLE audit_logs (
+    audit_log_id SERIAL PRIMARY KEY,
+
+    admin_id INTEGER,
+
+    action VARCHAR(100) NOT NULL,
+
+    entity_type VARCHAR(100),
+
+    entity_id INTEGER,
+
+    description TEXT,
+
+    ip_address VARCHAR(100),
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_audit_log_admin
+        FOREIGN KEY (admin_id)
+        REFERENCES admins(admin_id)
+        ON DELETE SET NULL
+);
+
+
+-- ============================================================
+-- AUDIT LOG INDEXES
+-- ============================================================
+
+CREATE INDEX idx_audit_logs_admin
+    ON audit_logs(admin_id);
+
+CREATE INDEX idx_audit_logs_action
+    ON audit_logs(action);
+
+CREATE INDEX idx_audit_logs_created_at
+    ON audit_logs(created_at DESC);

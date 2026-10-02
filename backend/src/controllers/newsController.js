@@ -1,5 +1,5 @@
 const pool = require("../config/db");
-
+const { createAuditLog } = require("../services/auditLogService");
 // ============================================================
 // GET PUBLISHED NEWS - PUBLIC
 // ============================================================
@@ -239,10 +239,19 @@ const createNews = async (req, res) => {
             ]
         );
 
-        res.status(201).json({
-            message: "News article created successfully",
-            news: result.rows[0]
-        });
+        await createAuditLog({
+    adminId: req.admin.adminId,
+    action: "CREATE_NEWS",
+    entityType: "News",
+    entityId: result.rows[0].news_id,
+    description: `Created news article "${result.rows[0].title}"`,
+    ipAddress: req.ip
+});
+
+res.status(201).json({
+    message: "News article created successfully",
+    news: result.rows[0]
+});
 
     } catch (error) {
         console.error("Error creating news:", error);
@@ -356,11 +365,19 @@ const updateNews = async (req, res) => {
             ]
         );
 
-        res.json({
-            message: "News article updated successfully",
-            news: result.rows[0]
-        });
+       await createAuditLog({
+    adminId: req.admin.adminId,
+    action: "UPDATE_NEWS",
+    entityType: "News",
+    entityId: result.rows[0].news_id,
+    description: `Updated news article "${result.rows[0].title}"`,
+    ipAddress: req.ip
+});
 
+res.json({
+    message: "News article updated successfully",
+    news: result.rows[0]
+});
     } catch (error) {
         console.error("Error updating news:", error);
 
@@ -400,10 +417,19 @@ const deleteNews = async (req, res) => {
             });
         }
 
-        res.json({
-            message: "News article deleted successfully",
-            news: result.rows[0]
-        });
+       await createAuditLog({
+    adminId: req.admin.adminId,
+    action: "DELETE_NEWS",
+    entityType: "News",
+    entityId: result.rows[0].news_id,
+    description: `Deleted news article "${result.rows[0].title}"`,
+    ipAddress: req.ip
+});
+
+res.json({
+    message: "News article deleted successfully",
+    news: result.rows[0]
+});
 
     } catch (error) {
         console.error("Error deleting news:", error);

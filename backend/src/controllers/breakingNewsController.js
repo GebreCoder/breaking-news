@@ -1,5 +1,5 @@
-
 const pool = require("../config/db");
+const { createAuditLog } = require("../services/auditLogService");
 
 // GET all breaking news for admin
 const getBreakingNews = async (req, res) => {
@@ -126,6 +126,15 @@ const createBreakingNews = async (req, res) => {
             ]
         );
 
+        await createAuditLog({
+            adminId: req.admin.adminId,
+            action: "CREATE_BREAKING_NEWS",
+            entityType: "BreakingNews",
+            entityId: result.rows[0].breaking_news_id,
+            description: `Created breaking news "${result.rows[0].headline}"`,
+            ipAddress: req.ip
+        });
+
         res.status(201).json({
             message:
                 "Breaking news created successfully",
@@ -174,6 +183,19 @@ const updateBreakingNews = async (req, res) => {
             });
         }
 
+        await createAuditLog({
+            adminId: req.admin.adminId,
+            action: isActive
+                ? "ACTIVATE_BREAKING_NEWS"
+                : "DEACTIVATE_BREAKING_NEWS",
+            entityType: "BreakingNews",
+            entityId: result.rows[0].breaking_news_id,
+            description: isActive
+                ? `Activated breaking news "${result.rows[0].headline}"`
+                : `Deactivated breaking news "${result.rows[0].headline}"`,
+            ipAddress: req.ip
+        });
+
         res.json({
             message:
                 "Breaking news updated successfully",
@@ -201,7 +223,7 @@ const deleteBreakingNews = async (req, res) => {
         const result = await pool.query(
             `DELETE FROM breaking_news
              WHERE breaking_news_id = $1
-             RETURNING breaking_news_id`,
+             RETURNING breaking_news_id, headline`,
             [id]
         );
 
@@ -211,6 +233,15 @@ const deleteBreakingNews = async (req, res) => {
                     "Breaking news item not found"
             });
         }
+
+        await createAuditLog({
+            adminId: req.admin.adminId,
+            action: "DELETE_BREAKING_NEWS",
+            entityType: "BreakingNews",
+            entityId: result.rows[0].breaking_news_id,
+            description: `Deleted breaking news "${result.rows[0].headline}"`,
+            ipAddress: req.ip
+        });
 
         res.json({
             message:
@@ -237,4 +268,3 @@ module.exports = {
     updateBreakingNews,
     deleteBreakingNews
 };
-

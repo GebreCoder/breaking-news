@@ -99,7 +99,26 @@ function AdminLayout({ children }) {
                     >
                         Site Settings
                     </Link>
-
+                   <Link
+    to="/admin/users"
+    className={
+        isActive("/admin/users")
+            ? "active"
+            : ""
+    }
+>
+    User Management
+</Link>
+<Link
+    to="/admin/audit-logs"
+    className={
+        isActive("/admin/audit-logs")
+            ? "active"
+            : ""
+    }
+>
+    Audit Log
+</Link>
                 </nav>
 
                 <div className="admin-sidebar-bottom">
