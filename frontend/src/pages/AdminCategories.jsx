@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
+import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
 function AdminCategories() {
+    const { t } = useLanguage();
+
     const [categories, setCategories] = useState([]);
 
     const [name, setName] = useState("");
@@ -69,14 +72,12 @@ function AdminCategories() {
             if (!response.ok) {
                 setError(
                     data.message ||
-                    "Failed to create category."
+                        t("adminCategories.createError")
                 );
                 return;
             }
 
-            setSuccess(
-                "Category created successfully."
-            );
+            setSuccess(t("adminCategories.createSuccess"));
 
             setName("");
             setDescription("");
@@ -89,9 +90,7 @@ function AdminCategories() {
                 error
             );
 
-            setError(
-                "Unable to connect to the server."
-            );
+            setError(t("adminCategories.connectionError"));
         } finally {
             setSaving(false);
         }
@@ -102,23 +101,25 @@ function AdminCategories() {
             <header className="admin-topbar admin-categories-topbar">
                 <div>
                     <span className="admin-page-eyebrow">
-                        CONTENT ORGANIZATION
+                        {t("adminCategories.eyebrow")}
                     </span>
 
-                    <h1>Categories</h1>
+                    <h1>
+                        {t("adminCategories.title")}
+                    </h1>
 
                     <p>
-                        Organize your news content into clear,
-                        easy-to-navigate categories.
+                        {t("adminCategories.subtitle")}
                     </p>
                 </div>
 
                 <div className="admin-category-count">
                     <span>{categories.length}</span>
+
                     <small>
                         {categories.length === 1
-                            ? "Category"
-                            : "Categories"}
+                            ? t("adminCategories.countOne")
+                            : t("adminCategories.countMany")}
                     </small>
                 </div>
             </header>
@@ -134,11 +135,14 @@ function AdminCategories() {
                             </div>
 
                             <div>
-                                <h2>Create Category</h2>
+                                <h2>
+                                    {t("adminCategories.createTitle")}
+                                </h2>
 
                                 <p>
-                                    Add a new category for organizing
-                                    published news.
+                                    {t(
+                                        "adminCategories.createText"
+                                    )}
                                 </p>
                             </div>
                         </div>
@@ -151,7 +155,9 @@ function AdminCategories() {
 
                                 <div>
                                     <strong>
-                                        Unable to create category
+                                        {t(
+                                            "adminCategories.errorTitle"
+                                        )}
                                     </strong>
 
                                     <p>{error}</p>
@@ -167,7 +173,9 @@ function AdminCategories() {
 
                                 <div>
                                     <strong>
-                                        Category created
+                                        {t(
+                                            "adminCategories.successTitle"
+                                        )}
                                     </strong>
 
                                     <p>{success}</p>
@@ -181,7 +189,9 @@ function AdminCategories() {
                         >
                             <div className="admin-category-field">
                                 <label htmlFor="categoryName">
-                                    Category Name
+                                    {t(
+                                        "adminCategories.nameLabel"
+                                    )}
                                     <span>*</span>
                                 </label>
 
@@ -194,19 +204,24 @@ function AdminCategories() {
                                             event.target.value
                                         )
                                     }
-                                    placeholder="Example: World"
+                                    placeholder={t(
+                                        "adminCategories.namePlaceholder"
+                                    )}
                                     required
                                 />
 
                                 <small>
-                                    Use a short, recognizable name
-                                    for the category.
+                                    {t(
+                                        "adminCategories.nameHelp"
+                                    )}
                                 </small>
                             </div>
 
                             <div className="admin-category-field">
                                 <label htmlFor="categoryDescription">
-                                    Description
+                                    {t(
+                                        "adminCategories.descLabel"
+                                    )}
                                 </label>
 
                                 <textarea
@@ -217,19 +232,24 @@ function AdminCategories() {
                                             event.target.value
                                         )
                                     }
-                                    placeholder="Optional category description"
+                                    placeholder={t(
+                                        "adminCategories.descPlaceholder"
+                                    )}
                                     rows="5"
                                 />
 
                                 <small>
-                                    A short description can help
-                                    explain what stories belong here.
+                                    {t(
+                                        "adminCategories.descHelp"
+                                    )}
                                 </small>
                             </div>
 
                             <div className="admin-category-field">
                                 <label htmlFor="displayOrder">
-                                    Display Order
+                                    {t(
+                                        "adminCategories.orderLabel"
+                                    )}
                                 </label>
 
                                 <input
@@ -245,8 +265,7 @@ function AdminCategories() {
                                 />
 
                                 <small>
-                                    Lower numbers appear earlier in
-                                    the category order.
+                                    {t("adminCategories.orderHelp")}
                                 </small>
                             </div>
 
@@ -258,14 +277,18 @@ function AdminCategories() {
                                 {saving ? (
                                     <>
                                         <span className="admin-category-spinner"></span>
-                                        Creating...
+                                        {t(
+                                            "adminCategories.creating"
+                                        )}
                                     </>
                                 ) : (
                                     <>
                                         <span className="admin-category-button-icon">
                                             +
                                         </span>
-                                        Create Category
+                                        {t(
+                                            "adminCategories.createAction"
+                                        )}
                                     </>
                                 )}
                             </button>
@@ -280,11 +303,16 @@ function AdminCategories() {
                                     02
                                 </span>
 
-                                <h2>Existing Categories</h2>
+                                <h2>
+                                    {t(
+                                        "adminCategories.listTitle"
+                                    )}
+                                </h2>
 
                                 <p>
-                                    Review and manage the categories
-                                    currently available on the site.
+                                    {t(
+                                        "adminCategories.listText"
+                                    )}
                                 </p>
                             </div>
 
@@ -295,8 +323,12 @@ function AdminCategories() {
 
                                 <span>
                                     {categories.length === 1
-                                        ? "active category"
-                                        : "active categories"}
+                                        ? t(
+                                              "adminCategories.activeOne"
+                                          )
+                                        : t(
+                                              "adminCategories.activeMany"
+                                          )}
                                 </span>
                             </div>
                         </div>
@@ -306,12 +338,15 @@ function AdminCategories() {
                                 <span className="admin-category-large-spinner"></span>
 
                                 <h3>
-                                    Loading categories
+                                    {t(
+                                        "adminCategories.loading"
+                                    )}
                                 </h3>
 
                                 <p>
-                                    Please wait while the category
-                                    list is loaded.
+                                    {t(
+                                        "adminCategories.loadingText"
+                                    )}
                                 </p>
                             </div>
                         ) : categories.length === 0 ? (
@@ -321,12 +356,11 @@ function AdminCategories() {
                                 </div>
 
                                 <h3>
-                                    No categories yet
+                                    {t("adminCategories.emptyTitle")}
                                 </h3>
 
                                 <p>
-                                    Create your first category using
-                                    the form to get started.
+                                    {t("adminCategories.emptyText")}
                                 </p>
                             </div>
                         ) : (
@@ -334,10 +368,29 @@ function AdminCategories() {
                                 <table className="admin-category-table">
                                     <thead>
                                         <tr>
-                                            <th>Category</th>
-                                            <th>Slug</th>
-                                            <th>Description</th>
-                                            <th>Order</th>
+                                            <th>
+                                                {t(
+                                                    "adminCategories.thCategory"
+                                                )}
+                                            </th>
+
+                                            <th>
+                                                {t(
+                                                    "adminCategories.thSlug"
+                                                )}
+                                            </th>
+
+                                            <th>
+                                                {t(
+                                                    "adminCategories.thDescription"
+                                                )}
+                                            </th>
+
+                                            <th>
+                                                {t(
+                                                    "adminCategories.thOrder"
+                                                )}
+                                            </th>
                                         </tr>
                                     </thead>
 
@@ -367,7 +420,9 @@ function AdminCategories() {
                                                                 </strong>
 
                                                                 <span>
-                                                                    Category
+                                                                    {t(
+                                                                        "adminCategories.rowCategory"
+                                                                    )}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -385,7 +440,9 @@ function AdminCategories() {
                                                     <td>
                                                         <span className="admin-category-description">
                                                             {category.description ||
-                                                                "No description provided"}
+                                                                t(
+                                                                    "adminCategories.noDescription"
+                                                                )}
                                                         </span>
                                                     </td>
 

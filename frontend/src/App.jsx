@@ -17,6 +17,7 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminAuditLog from "./pages/AdminAuditLog";
 import EditNews from "./pages/EditNews";
 import "./App.css";
+import "./styles/language.css";
 
 function App() {
     return (

@@ -1,0 +1,168 @@
+/* ============================================================
+   LANGUAGE SUPPORT (Amharic / English)
+   ============================================================ */
+
+/* Ethiopic glyphs are not part of Arial, so the stack falls
+   through to Noto Sans Ethiopic for Amharic characters only.
+   Latin text keeps rendering exactly as before. */
+
+body {
+    font-family: Arial, Helvetica, "Noto Sans Ethiopic", sans-serif;
+}
+
+html[lang="am"] body {
+    line-height: 1.65;
+}
+
+/* ============================================================
+   LANGUAGE TOGGLE
+   ============================================================ */
+
+.lang-toggle {
+    position: relative;
+
+    flex-shrink: 0;
+
+    display: inline-flex;
+    align-items: center;
+
+    width: 92px;
+    height: 34px;
+
+    padding: 3px;
+
+    border: 1px solid #3b5367;
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, 0.06);
+
+    font-family: inherit;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.lang-toggle:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #5d7690;
+}
+
+.lang-toggle:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+.lang-toggle-thumb {
+    position: absolute;
+    z-index: 1;
+
+    top: 3px;
+    left: 3px;
+
+    width: calc(50% - 3px);
+    height: calc(100% - 6px);
+
+    border-radius: 999px;
+
+    background: #c62828;
+
+    transition: transform 0.25s ease;
+}
+
+.lang-toggle-am .lang-toggle-thumb {
+    transform: translateX(100%);
+}
+
+.lang-toggle-option {
+    position: relative;
+    z-index: 2;
+
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 100%;
+
+    color: #a8b8c6;
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+
+    line-height: 1;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    transition: color 0.2s ease;
+}
+
+.lang-toggle-option.is-active {
+    color: #ffffff;
+}
+
+/* ============================================================
+   LIGHT SURFACES (admin login)
+   ============================================================ */
+
+.admin-login-language {
+    display: flex;
+    justify-content: center;
+
+    width: 100%;
+
+    margin-bottom: 20px;
+}
+
+.lang-toggle-light {
+    border-color: #d3dae2;
+    background: #ffffff;
+}
+
+.lang-toggle-light:hover {
+    background: #f1f4f7;
+    border-color: #b7c2ce;
+}
+
+.lang-toggle-light:focus-visible {
+    outline-color: #0b1f33;
+}
+
+.lang-toggle-light .lang-toggle-option {
+    color: #6b7a89;
+}
+
+.lang-toggle-light .lang-toggle-option.is-active {
+    color: #ffffff;
+}
+
+/* ============================================================
+   ADMIN SIDEBAR PLACEMENT
+   ============================================================ */
+
+.admin-sidebar-language {
+    display: flex;
+    justify-content: flex-start;
+
+    padding: 18px 25px 0;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 640px) {
+    .lang-toggle {
+        width: 80px;
+        height: 32px;
+    }
+
+    .lang-toggle-option {
+        font-size: 11px;
+    }
+}

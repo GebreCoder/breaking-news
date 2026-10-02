@@ -1,10 +1,13 @@
-
 import { Link, useLocation, useNavigate } from "react-router-dom";
+
+import LanguageToggle from "./LanguageToggle";
+import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
 function AdminLayout({ children }) {
     const location = useLocation();
     const navigate = useNavigate();
+    const { t } = useLanguage();
 
     const isActive = (path) => {
         return location.pathname === path;
@@ -23,11 +26,16 @@ function AdminLayout({ children }) {
             <aside className="admin-sidebar">
 
                 <div className="admin-sidebar-brand">
-                    BREAKING <span>NEWS</span>
+                    {t("brand.name")} {" "}
+                    <span>{t("brand.nameAccent")}</span>
+                </div>
+
+                <div className="admin-sidebar-language">
+                    <LanguageToggle />
                 </div>
 
                 <div className="admin-sidebar-title">
-                    Administration
+                    {t("admin.administration")}
                 </div>
 
                 <nav className="admin-nav">
@@ -40,7 +48,7 @@ function AdminLayout({ children }) {
                                 : ""
                         }
                     >
-                        Dashboard
+                        {t("admin.dashboard")}
                     </Link>
 
                     <Link
@@ -53,7 +61,7 @@ function AdminLayout({ children }) {
                                 : ""
                         }
                     >
-                        News
+                        {t("admin.news")}
                     </Link>
 
                     <Link
@@ -64,7 +72,7 @@ function AdminLayout({ children }) {
                                 : ""
                         }
                     >
-                        Breaking News
+                        {t("admin.breakingNews")}
                     </Link>
 
                     <Link
@@ -75,7 +83,7 @@ function AdminLayout({ children }) {
                                 : ""
                         }
                     >
-                        Categories
+                        {t("admin.categories")}
                     </Link>
 
                     <Link
@@ -86,7 +94,7 @@ function AdminLayout({ children }) {
                                 : ""
                         }
                     >
-                        Media
+                        {t("admin.media")}
                     </Link>
 
                     <Link
@@ -97,7 +105,7 @@ function AdminLayout({ children }) {
                                 : ""
                         }
                     >
-                        Site Settings
+                        {t("admin.siteSettings")}
                     </Link>
                    <Link
     to="/admin/users"
@@ -127,7 +135,7 @@ function AdminLayout({ children }) {
                         to="/"
                         className="admin-view-site"
                     >
-                        View Website
+                        {t("admin.viewWebsite")}
                     </Link>
 
                     <button
@@ -135,7 +143,7 @@ function AdminLayout({ children }) {
                         className="admin-signout"
                         onClick={handleSignOut}
                     >
-                        Sign Out
+                        {t("admin.signOut")}
                     </button>
 
                 </div>
@@ -152,4 +160,3 @@ function AdminLayout({ children }) {
 }
 
 export default AdminLayout;
-

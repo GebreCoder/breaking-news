@@ -19,11 +19,14 @@ const createAdmin = async () => {
         await pool.query(
             `INSERT INTO admins
                 (full_name, email, password_hash)
-             VALUES ($1, $2, $3)`,
+             VALUES ($1, $2, $3)
+             ON CONFLICT (email) DO UPDATE
+             SET full_name = EXCLUDED.full_name,
+                 password_hash = EXCLUDED.password_hash`,
             [fullName, email, passwordHash]
         );
 
-        console.log("Admin account created successfully.");
+        console.log("Admin account saved successfully (created or updated).");
         console.log(`Email: ${email}`);
 
     } catch (error) {

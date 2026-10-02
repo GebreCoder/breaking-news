@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+
+import LanguageToggle from "../components/LanguageToggle";
+import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
 function AdminLogin() {
     const navigate = useNavigate();
+    const { t } = useLanguage();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -34,7 +38,9 @@ function AdminLogin() {
             const data = await response.json();
 
             if (!response.ok) {
-                setError(data.message || "Login failed.");
+                setError(
+                    data.error || data.message || t("login.failed")
+                );
                 return;
             }
 
@@ -47,9 +53,7 @@ function AdminLogin() {
             navigate("/admin");
         } catch (error) {
             console.error("Login error:", error);
-            setError(
-                "Unable to connect to the server. Please try again."
-            );
+            setError(t("login.connectionError"));
         } finally {
             setLoading(false);
         }
@@ -58,24 +62,29 @@ function AdminLogin() {
     return (
         <div className="admin-login-page">
 
+            <div className="admin-login-language">
+                <LanguageToggle className="lang-toggle-light" />
+            </div>
+
             <div className="admin-login-card">
 
                 {/* BRAND */}
                 <div className="admin-login-brand">
                     <div className="admin-login-logo">
-                        BREAKING <span>NEWS</span>
+                        {t("brand.name")} {" "}
+                        <span>{t("brand.nameAccent")}</span>
                     </div>
 
                     <div className="admin-login-brand-line"></div>
 
-                    <p>Administration Portal</p>
+                    <p>{t("login.portal")}</p>
                 </div>
 
                 {/* HEADER */}
                 <div className="admin-login-header">
-                    <h1>Welcome Back</h1>
+                    <h1>{t("login.title")}</h1>
                     <p>
-                        Sign in to access your news administration dashboard.
+                        {t("login.subtitle")}
                     </p>
                 </div>
 
@@ -96,7 +105,7 @@ function AdminLogin() {
 
                     <div className="login-field">
                         <label htmlFor="email">
-                            Email Address
+                            {t("login.email")}
                         </label>
 
                         <div className="login-input-wrapper">
@@ -111,7 +120,9 @@ function AdminLogin() {
                                 onChange={(event) =>
                                     setEmail(event.target.value)
                                 }
-                                placeholder="Enter your email address"
+                                placeholder={t(
+                                    "login.emailPlaceholder"
+                                )}
                                 autoComplete="email"
                                 required
                                 disabled={loading}
@@ -121,7 +132,7 @@ function AdminLogin() {
 
                     <div className="login-field">
                         <label htmlFor="password">
-                            Password
+                            {t("login.password")}
                         </label>
 
                         <div className="login-input-wrapper">
@@ -136,7 +147,9 @@ function AdminLogin() {
                                 onChange={(event) =>
                                     setPassword(event.target.value)
                                 }
-                                placeholder="Enter your password"
+                                placeholder={t(
+                                    "login.passwordPlaceholder"
+                                )}
                                 autoComplete="current-password"
                                 required
                                 disabled={loading}
@@ -152,11 +165,11 @@ function AdminLogin() {
                         {loading ? (
                             <>
                                 <span className="login-spinner"></span>
-                                Signing in...
+                                {t("login.signingIn")}
                             </>
                         ) : (
                             <>
-                                Sign In
+                                {t("login.signIn")}
                                 <span className="login-button-arrow">
                                     →
                                 </span>
@@ -170,14 +183,15 @@ function AdminLogin() {
                 <div className="admin-login-footer">
                     <Link to="/">
                         <span>←</span>
-                        Back to Breaking News
+                        {t("login.backToSite")}
                     </Link>
                 </div>
 
             </div>
 
             <div className="admin-login-copyright">
-                © {new Date().getFullYear()} Breaking News. All rights reserved.
+                © {new Date().getFullYear()} {t("brand.full")}.{" "}
+                {t("footer.rights")}
             </div>
 
         </div>
