@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const { createAuditLog } = require("../services/auditLogService");
 
 // GET all breaking news for admin
 const getBreakingNews = async (req, res) => {
@@ -73,21 +74,24 @@ const createBreakingNews = async (req, res) => {
   try {
     const { headline, newsId, linkUrl, startsAt, endsAt } = req.body;
 
-    if (!headline || !headline.trim()) {
+    if (typeof headline !== "string" || !headline.trim()) {
       return res.status(400).json({
         message: "Headline is required",
       });
     }
 
-    if (startsAt && endsAt) {
-      const start = new Date(startsAt);
-      const end = new Date(endsAt);
+    const start = startsAt ? new Date(startsAt) : null;
+    const end = endsAt ? new Date(endsAt) : null;
 
-      if (start >= end) {
-        return res.status(400).json({
-          message: "End time must be later than start time",
-        });
-      }
+    if (
+      (start && Number.isNaN(start.getTime())) ||
+      (end && Number.isNaN(end.getTime())) ||
+      (start && end && start >= end)
+    ) {
+      return res.status(400).json({
+        message:
+          "Start and end times must be valid, and end time must be later than start time",
+      });
     }
 
     const result = await pool.query(
@@ -104,15 +108,26 @@ const createBreakingNews = async (req, res) => {
       [
         newsId || null,
         headline.trim(),
-        linkUrl || null,
+        typeof linkUrl === "string" && linkUrl.trim() ? linkUrl.trim() : null,
         startsAt || null,
         endsAt || null,
       ],
     );
 
+    const breakingNews = result.rows[0];
+
+    await createAuditLog({
+      adminId: req.admin.adminId,
+      action: "CREATE_BREAKING_NEWS",
+      entityType: "BreakingNews",
+      entityId: breakingNews.breaking_news_id,
+      description: `Created breaking news "${breakingNews.headline}"`,
+      ipAddress: req.ip,
+    });
+
     res.status(201).json({
       message: "Breaking news created successfully",
-      breakingNews: result.rows[0],
+      breakingNews,
     });
   } catch (error) {
     console.error("Error creating breaking news:", error);
@@ -151,9 +166,20 @@ const updateBreakingNews = async (req, res) => {
       });
     }
 
+    const breakingNews = result.rows[0];
+
+    await createAuditLog({
+      adminId: req.admin.adminId,
+      action: isActive ? "ACTIVATE_BREAKING_NEWS" : "DEACTIVATE_BREAKING_NEWS",
+      entityType: "BreakingNews",
+      entityId: breakingNews.breaking_news_id,
+      description: `${isActive ? "Activated" : "Deactivated"} breaking news "${breakingNews.headline}"`,
+      ipAddress: req.ip,
+    });
+
     res.json({
       message: "Breaking news updated successfully",
-      breakingNews: result.rows[0],
+      breakingNews,
     });
   } catch (error) {
     console.error("Error updating breaking news:", error);
@@ -216,9 +242,20 @@ const updateBreakingNewsDetails = async (req, res) => {
       });
     }
 
+    const breakingNews = result.rows[0];
+
+    await createAuditLog({
+      adminId: req.admin.adminId,
+      action: "UPDATE_BREAKING_NEWS_DETAILS",
+      entityType: "BreakingNews",
+      entityId: breakingNews.breaking_news_id,
+      description: `Updated breaking news details for "${breakingNews.headline}"`,
+      ipAddress: req.ip,
+    });
+
     res.json({
       message: "Breaking news details updated successfully",
-      breakingNews: result.rows[0],
+      breakingNews,
     });
   } catch (error) {
     console.error("Error updating breaking news details:", error);
@@ -243,7 +280,7 @@ const deleteBreakingNews = async (req, res) => {
     const result = await pool.query(
       `DELETE FROM breaking_news
              WHERE breaking_news_id = $1
-             RETURNING breaking_news_id`,
+             RETURNING breaking_news_id, headline`,
       [id],
     );
 
@@ -252,6 +289,17 @@ const deleteBreakingNews = async (req, res) => {
         message: "Breaking news item not found",
       });
     }
+
+    const deletedBreakingNews = result.rows[0];
+
+    await createAuditLog({
+      adminId: req.admin.adminId,
+      action: "DELETE_BREAKING_NEWS",
+      entityType: "BreakingNews",
+      entityId: deletedBreakingNews.breaking_news_id,
+      description: `Deleted breaking news "${deletedBreakingNews.headline}"`,
+      ipAddress: req.ip,
+    });
 
     res.json({
       message: "Breaking news deleted successfully",

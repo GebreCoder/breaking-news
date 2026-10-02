@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const { createAuditLog } = require("../services/auditLogService");
 
 const createCategorySlug = (name) =>
   name
@@ -274,9 +275,20 @@ const createCategory = async (req, res) => {
       [cleanName, slug, description?.trim() || null, Number(displayOrder) || 0],
     );
 
+    const category = result.rows[0];
+
+    await createAuditLog({
+      adminId: req.admin.adminId,
+      action: "CREATE_CATEGORY",
+      entityType: "Category",
+      entityId: category.category_id,
+      description: `Created category "${category.name}"`,
+      ipAddress: req.ip,
+    });
+
     res.status(201).json({
       message: "Category created successfully",
-      category: result.rows[0],
+      category,
     });
   } catch (error) {
     console.error("Error creating category:", error);
