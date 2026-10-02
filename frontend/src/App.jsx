@@ -13,6 +13,8 @@ import AdminBreakingNews from "./pages/AdminBreakingNews";
 import AdminMedia from "./pages/AdminMedia";
 import AdminSiteSettings from "./pages/AdminSiteSettings";
 import AdminLogin from "./pages/AdminLogin";
+import AdminUsers from "./pages/AdminUsers";
+import AdminAuditLog from "./pages/AdminAuditLog";
 import EditNews from "./pages/EditNews";
 import "./App.css";
 import "./styles/language.css";
@@ -55,6 +57,22 @@ function App() {
                     path="/admin/login"
                     element={<AdminLogin />}
                 />
+                <Route
+    path="/admin/users"
+    element={
+        <ProtectedRoute>
+            <AdminUsers />
+        </ProtectedRoute>
+    }
+/>
+<Route
+    path="/admin/audit-logs"
+    element={
+        <ProtectedRoute>
+            <AdminAuditLog />
+        </ProtectedRoute>
+    }
+/>
 
 
                 {/* =========================

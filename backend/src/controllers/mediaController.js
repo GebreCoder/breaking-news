@@ -1,5 +1,5 @@
-
 const pool = require("../config/db");
+const { createAuditLog } = require("../services/auditLogService");
 
 // GET all media
 const getMedia = async (req, res) => {
@@ -65,6 +65,15 @@ const uploadMedia = async (req, res) => {
             ]
         );
 
+        await createAuditLog({
+            adminId: req.admin.adminId,
+            action: "UPLOAD_MEDIA",
+            entityType: "Media",
+            entityId: result.rows[0].media_id,
+            description: `Uploaded media "${result.rows[0].file_name}"`,
+            ipAddress: req.ip
+        });
+
         res.status(201).json({
             message: "Media uploaded successfully",
             media: result.rows[0]
@@ -88,7 +97,7 @@ const deleteMedia = async (req, res) => {
         const result = await pool.query(
             `DELETE FROM media
              WHERE media_id = $1
-             RETURNING media_id`,
+             RETURNING media_id, file_name`,
             [id]
         );
 
@@ -97,6 +106,15 @@ const deleteMedia = async (req, res) => {
                 message: "Media not found"
             });
         }
+
+        await createAuditLog({
+            adminId: req.admin.adminId,
+            action: "DELETE_MEDIA",
+            entityType: "Media",
+            entityId: result.rows[0].media_id,
+            description: `Deleted media "${result.rows[0].file_name}"`,
+            ipAddress: req.ip
+        });
 
         res.json({
             message: "Media deleted successfully"
@@ -117,4 +135,3 @@ module.exports = {
     uploadMedia,
     deleteMedia
 };
-

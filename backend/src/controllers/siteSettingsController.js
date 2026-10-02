@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const { createAuditLog } = require("../services/auditLogService");
 
 // GET all site settings
 const getSiteSettings = async (req, res) => {
@@ -58,6 +59,15 @@ const updateSiteSetting = async (req, res) => {
                 message: "Setting not found"
             });
         }
+
+        await createAuditLog({
+            adminId: req.admin.adminId,
+            action: "UPDATE_SITE_SETTING",
+            entityType: "SiteSetting",
+            entityId: result.rows[0].setting_id,
+            description: `Updated site setting "${result.rows[0].setting_key}"`,
+            ipAddress: req.ip
+        });
 
         res.json({
             message: "Site setting updated successfully",
