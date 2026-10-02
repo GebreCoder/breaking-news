@@ -5,6 +5,7 @@ import {
     useParams
 } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
+import LanguageToggle from "../components/LanguageToggle";
 import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
@@ -157,7 +158,7 @@ function EditNews() {
         };
 
         loadData();
-    }, [id, token]);
+    }, [id, t, token]);
 
     // ============================================================
     // MEDIA SELECT
@@ -323,6 +324,10 @@ function EditNews() {
                         </p>
 
                     </div>
+
+                    <LanguageToggle
+                        className="lang-toggle-light admin-header-language"
+                    />
 
                     <Link
                         to="/admin/news"

@@ -13,17 +13,19 @@ function SearchNews() {
 
     const initialQuery = searchParams.get("q") || "";
 
-    const [query, setQuery] = useState(initialQuery);
+    const [queryDraft, setQueryDraft] = useState(() => ({
+        search: initialQuery,
+        value: initialQuery,
+    }));
+    const query = queryDraft.search === initialQuery
+        ? queryDraft.value
+        : initialQuery;
     const [articles, setArticles] = useState([]);
     const [categories, setCategories] = useState([]);
     const [breakingNews, setBreakingNews] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searched, setSearched] = useState(Boolean(initialQuery));
     const [error, setError] = useState("");
-
-    useEffect(() => {
-        setQuery(initialQuery);
-    }, [initialQuery]);
 
     useEffect(() => {
         const loadSearchPage = async () => {
@@ -70,10 +72,6 @@ function SearchNews() {
 
     useEffect(() => {
         if (!initialQuery.trim()) {
-            setArticles([]);
-            setSearched(false);
-            setLoading(false);
-            setError("");
             return;
         }
 
@@ -170,11 +168,17 @@ function SearchNews() {
         });
     };
 
+    const hasSearchQuery = Boolean(initialQuery.trim());
+    const visibleArticles = hasSearchQuery ? articles : [];
+    const visibleLoading = hasSearchQuery && loading;
+    const visibleSearched = hasSearchQuery && searched;
+    const visibleError = hasSearchQuery ? error : "";
+
     return (
         <div className="site">
             <SiteHeader
                 categories={categories}
-                homeActive={!searched}
+                homeActive={!visibleSearched}
             />
 
             <BreakingBar items={breakingNews} />
@@ -205,7 +209,10 @@ function SearchNews() {
                             type="search"
                             value={query}
                             onChange={(event) =>
-                                setQuery(event.target.value)
+                                setQueryDraft({
+                                    search: initialQuery,
+                                    value: event.target.value,
+                                })
                             }
                             placeholder={t(
                                 "nav.searchPlaceholder"
@@ -220,7 +227,7 @@ function SearchNews() {
                 </form>
 
                 {/* SEARCHING */}
-                {loading && (
+                {visibleLoading && (
                     <div className="search-status">
                         <div className="loading-spinner"></div>
 
@@ -235,14 +242,14 @@ function SearchNews() {
                 )}
 
                 {/* ERROR */}
-                {!loading && error && (
+                {!visibleLoading && visibleError && (
                     <div className="search-error">
                         <h2>
                             {t("search.errorTitle")}
                         </h2>
 
                         <p>
-                            {error}
+                            {visibleError}
                         </p>
 
                         <button
@@ -259,9 +266,9 @@ function SearchNews() {
                 )}
 
                 {/* INITIAL STATE */}
-                {!loading &&
-                    !error &&
-                    !searched && (
+                {!visibleLoading &&
+                    !visibleError &&
+                    !visibleSearched && (
                         <div className="search-empty">
                             <div className="search-empty-icon">
                                 🔎
@@ -278,10 +285,10 @@ function SearchNews() {
                     )}
 
                 {/* NO RESULTS */}
-                {!loading &&
-                    !error &&
-                    searched &&
-                    articles.length === 0 && (
+                {!visibleLoading &&
+                    !visibleError &&
+                    visibleSearched &&
+                    visibleArticles.length === 0 && (
                         <div className="search-empty">
                             <div className="search-empty-icon">
                                 🔎
@@ -317,9 +324,9 @@ function SearchNews() {
                     )}
 
                 {/* RESULTS */}
-                {!loading &&
-                    !error &&
-                    articles.length > 0 && (
+                {!visibleLoading &&
+                    !visibleError &&
+                    visibleArticles.length > 0 && (
                         <section className="search-results">
                             <div className="search-results-header">
                                 <div>
@@ -333,15 +340,15 @@ function SearchNews() {
                                 </div>
 
                                 <span className="search-result-count">
-                                    {articles.length}{" "}
-                                    {articles.length === 1
+                                    {visibleArticles.length}{" "}
+                                    {visibleArticles.length === 1
                                         ? t("search.countOne")
                                         : t("search.countMany")}
                                 </span>
                             </div>
 
                             <div className="category-news-grid">
-                                {articles.map((article) => (
+                                {visibleArticles.map((article) => (
                                     <article
                                         className="category-news-card"
                                         key={article.news_id}

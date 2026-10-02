@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
+import LanguageToggle from "../components/LanguageToggle";
 import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
@@ -59,8 +60,12 @@ function AdminSiteSettings() {
         }
     };
 
-    useEffect(() => {
+    const loadSettingsOnMount = useEffectEvent(() => {
         loadSettings();
+    });
+
+    useEffect(() => {
+        Promise.resolve().then(loadSettingsOnMount);
     }, []);
 
     const handleChange = (key, value) => {
@@ -153,6 +158,10 @@ function AdminSiteSettings() {
                     </p>
 
                 </div>
+
+                <LanguageToggle
+                    className="lang-toggle-light admin-header-language"
+                />
 
             </header>
 

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
+import LanguageToggle from "../components/LanguageToggle";
 import { useLanguage } from "../i18n/useLanguage.js";
 
 function AdminDashboard() {
@@ -28,6 +29,10 @@ function AdminDashboard() {
                         {t("dashboard.subtitle")}
                     </p>
                 </div>
+
+                <LanguageToggle
+                    className="lang-toggle-light admin-header-language"
+                />
             </header>
 
             <main className="admin-content">

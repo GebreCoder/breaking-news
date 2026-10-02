@@ -142,14 +142,28 @@ html[lang="am"] body {
 }
 
 /* ============================================================
-   ADMIN SIDEBAR PLACEMENT
+   ADMIN HEADER PLACEMENT
    ============================================================ */
 
-.admin-sidebar-language {
-    display: flex;
-    justify-content: flex-start;
+.admin-header-language {
+    margin-left: auto;
+    flex-shrink: 0;
+}
 
-    padding: 18px 25px 0;
+/* When admin headers stack, keep the toggle aligned with the
+   rest of the content instead of floating to the right. */
+
+@media (max-width: 900px) {
+    .admin-news-header .admin-header-language,
+    .edit-news-header .admin-header-language {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-topbar .admin-header-language {
+        margin-left: 0;
+    }
 }
 
 /* ============================================================

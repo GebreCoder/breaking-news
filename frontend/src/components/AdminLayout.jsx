@@ -1,6 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import LanguageToggle from "./LanguageToggle";
 import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
 
@@ -28,10 +27,6 @@ function AdminLayout({ children }) {
                 <div className="admin-sidebar-brand">
                     {t("brand.name")} {" "}
                     <span>{t("brand.nameAccent")}</span>
-                </div>
-
-                <div className="admin-sidebar-language">
-                    <LanguageToggle />
                 </div>
 
                 <div className="admin-sidebar-title">
