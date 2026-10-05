@@ -11,11 +11,18 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        if (!email || !password) {
+        if (
+            typeof email !== "string" ||
+            typeof password !== "string" ||
+            !email.trim() ||
+            !password
+        ) {
             return res.status(400).json({
                 message: "Email and password are required"
             });
         }
+
+        const normalizedEmail = email.trim().toLowerCase();
 
         const result = await pool.query(
             `SELECT 
@@ -25,9 +32,9 @@ const login = async (req, res) => {
                 password_hash,
                 is_active
              FROM admins
-             WHERE email = $1
+             WHERE LOWER(BTRIM(email)) = $1
              LIMIT 1`,
-            [email]
+            [normalizedEmail]
         );
 
         if (result.rows.length === 0) {
