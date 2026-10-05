@@ -4,6 +4,7 @@ import {
     useNavigate,
     useParams
 } from "react-router-dom";
+import { API_URL } from "../api";
 import AdminLayout from "../components/AdminLayout";
 import LanguageToggle from "../components/LanguageToggle";
 import { useLanguage } from "../i18n/useLanguage.js";
@@ -50,7 +51,7 @@ function EditNews() {
                     mediaResponse
                 ] = await Promise.all([
                     fetch(
-                        `http://localhost:5000/api/news/admin/${id}`,
+                        `${API_URL}/api/news/admin/${id}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${token}`
@@ -59,11 +60,11 @@ function EditNews() {
                     ),
 
                     fetch(
-                        "http://localhost:5000/api/categories"
+                        `${API_URL}/api/categories`
                     ),
 
                     fetch(
-                        "http://localhost:5000/api/media",
+                        `${API_URL}/api/media`,
                         {
                             headers: {
                                 Authorization: `Bearer ${token}`
@@ -180,7 +181,7 @@ function EditNews() {
 
         if (selectedMedia) {
             setFeaturedImage(
-                `http://localhost:5000${selectedMedia.file_url}`
+                `${API_URL}${selectedMedia.file_url}`
             );
 
             if (
@@ -223,7 +224,7 @@ function EditNews() {
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/news/${id}`,
+                `${API_URL}/api/news/${id}`,
                 {
                     method: "PUT",
 
@@ -656,7 +657,7 @@ function EditNews() {
                                                     "http"
                                                 )
                                                     ? featuredImage
-                                                    : `http://localhost:5000${featuredImage}`
+                                                    : `${API_URL}${featuredImage}`
                                             }
                                             alt={
                                                 imageCaption ||

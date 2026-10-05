@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useEffectEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { API_URL } from "../api";
 import AdminLayout from "../components/AdminLayout";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import LanguageToggle from "../components/LanguageToggle";
@@ -27,7 +28,7 @@ function AdminNews() {
             setError("");
 
             const response = await fetch(
-                "http://localhost:5000/api/news/admin/all",
+                `${API_URL}/api/news/admin/all`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -81,7 +82,7 @@ function AdminNews() {
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/news/${id}`,
+                `${API_URL}/api/news/${id}`,
                 {
                     method: "DELETE",
                     headers: {

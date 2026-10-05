@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
+import { API_URL } from "../api";
 import BreakingBar from "../components/BreakingBar";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
@@ -32,9 +33,9 @@ function SearchNews() {
             try {
                 const [categoriesResponse, breakingResponse] =
                     await Promise.all([
-                        fetch("http://localhost:5000/api/categories"),
+                        fetch(`${API_URL}/api/categories`),
                         fetch(
-                            "http://localhost:5000/api/breaking-news/active"
+                            `${API_URL}/api/breaking-news/active`
                         ),
                     ]);
 
@@ -81,7 +82,7 @@ function SearchNews() {
 
             try {
                 const response = await fetch(
-                    "http://localhost:5000/api/news"
+                    `${API_URL}/api/news`
                 );
 
                 if (!response.ok) {

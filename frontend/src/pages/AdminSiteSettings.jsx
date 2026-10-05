@@ -1,4 +1,5 @@
 import { useEffect, useEffectEvent, useState } from "react";
+import { API_URL } from "../api";
 import AdminLayout from "../components/AdminLayout";
 import LanguageToggle from "../components/LanguageToggle";
 import { useLanguage } from "../i18n/useLanguage.js";
@@ -19,7 +20,7 @@ function AdminSiteSettings() {
     const loadSettings = async () => {
         try {
             const response = await fetch(
-                "http://localhost:5000/api/site-settings",
+                `${API_URL}/api/site-settings`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -86,7 +87,7 @@ function AdminSiteSettings() {
             for (const setting of settings) {
 
                 const response = await fetch(
-                    `http://localhost:5000/api/site-settings/${setting.setting_key}`,
+                    `${API_URL}/api/site-settings/${setting.setting_key}`,
                     {
                         method: "PATCH",
 

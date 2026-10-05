@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_URL } from "../api";
 import AdminLayout from "../components/AdminLayout";
 import "../App.css";
 
@@ -15,7 +16,7 @@ function AdminAuditLog() {
             const token = localStorage.getItem("adminToken");
 
             const response = await fetch(
-                "http://localhost:5000/api/admin/audit-logs",
+                `${API_URL}/api/admin/audit-logs`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
