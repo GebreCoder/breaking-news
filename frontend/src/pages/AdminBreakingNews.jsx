@@ -1,4 +1,5 @@
 import { useEffect, useEffectEvent, useState } from "react";
+import { API_URL } from "../api";
 import AdminLayout from "../components/AdminLayout";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import LanguageToggle from "../components/LanguageToggle";
@@ -47,11 +48,11 @@ function AdminBreakingNews() {
             const [newsResponse, breakingResponse] =
                 await Promise.all([
                     fetch(
-                        "http://localhost:5000/api/news"
+                        `${API_URL}/api/news`
                     ),
 
                     fetch(
-                        "http://localhost:5000/api/breaking-news",
+                        `${API_URL}/api/breaking-news`,
                         {
                             headers: {
                                 Authorization: `Bearer ${token}`
@@ -129,8 +130,8 @@ function AdminBreakingNews() {
         try {
             const response = await fetch(
                 isEditing
-                    ? `http://localhost:5000/api/breaking-news/${editingAlert.breaking_news_id}`
-                    : "http://localhost:5000/api/breaking-news",
+                    ? `${API_URL}/api/breaking-news/${editingAlert.breaking_news_id}`
+                    : `${API_URL}/api/breaking-news`,
                 {
                     method: isEditing ? "PUT" : "POST",
 
@@ -231,7 +232,7 @@ function AdminBreakingNews() {
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/breaking-news/${id}`,
+                `${API_URL}/api/breaking-news/${id}`,
                 {
                     method: "PATCH",
 
@@ -288,7 +289,7 @@ function AdminBreakingNews() {
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/breaking-news/${id}`,
+                `${API_URL}/api/breaking-news/${id}`,
                 {
                     method: "DELETE",
 

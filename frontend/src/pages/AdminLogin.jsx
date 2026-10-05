@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
+import { API_URL } from "../api";
 import LanguageToggle from "../components/LanguageToggle";
 import { useLanguage } from "../i18n/useLanguage.js";
 import "../App.css";
@@ -22,7 +23,7 @@ function AdminLogin() {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/admin/login",
+                `${API_URL}/api/admin/login`,
                 {
                     method: "POST",
                     headers: {

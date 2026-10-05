@@ -1,4 +1,5 @@
 import { useEffect, useEffectEvent, useState } from "react";
+import { API_URL } from "../api";
 import AdminLayout from "../components/AdminLayout";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import LanguageToggle from "../components/LanguageToggle";
@@ -24,7 +25,7 @@ function AdminMedia() {
     const loadMedia = async () => {
         try {
             const response = await fetch(
-                "http://localhost:5000/api/media",
+                `${API_URL}/api/media`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -92,7 +93,7 @@ function AdminMedia() {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/media/upload",
+                `${API_URL}/api/media/upload`,
                 {
                     method: "POST",
 
@@ -153,7 +154,7 @@ function AdminMedia() {
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/media/${id}`,
+                `${API_URL}/api/media/${id}`,
                 {
                     method: "DELETE",
 
@@ -358,7 +359,7 @@ function AdminMedia() {
                                 <div className="media-preview">
 
                                     <img
-                                        src={`http://localhost:5000${item.file_url}`}
+                                        src={`${API_URL}${item.file_url}`}
                                         alt={
                                             item.alt_text ||
                                             item.file_name

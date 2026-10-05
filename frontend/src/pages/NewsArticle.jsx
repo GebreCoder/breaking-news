@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import { API_URL } from "../api";
 import BreakingBar from "../components/BreakingBar";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
@@ -25,9 +26,9 @@ function NewsArticle() {
             try {
                 const [articleResponse, categoriesResponse, breakingResponse] =
                     await Promise.all([
-                        fetch(`http://localhost:5000/api/news/${slug}`),
-                        fetch("http://localhost:5000/api/categories"),
-                        fetch("http://localhost:5000/api/breaking-news/active"),
+                        fetch(`${API_URL}/api/news/${slug}`),
+                        fetch(`${API_URL}/api/categories`),
+                        fetch(`${API_URL}/api/breaking-news/active`),
                     ]);
 
                 if (!articleResponse.ok) {

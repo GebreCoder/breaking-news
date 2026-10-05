@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { API_URL } from "../api";
 import AdminLayout from "../components/AdminLayout";
 import LanguageToggle from "../components/LanguageToggle";
 import { useLanguage } from "../i18n/useLanguage.js";
@@ -31,7 +32,7 @@ function CreateNews() {
         const loadCategories = async () => {
             try {
                 const response = await fetch(
-                    "http://localhost:5000/api/categories"
+                    `${API_URL}/api/categories`
                 );
 
                 const data = await response.json();
@@ -50,7 +51,7 @@ function CreateNews() {
         const loadMedia = async () => {
             try {
                 const response = await fetch(
-                    "http://localhost:5000/api/media",
+                    `${API_URL}/api/media`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`
@@ -90,7 +91,7 @@ function CreateNews() {
 
         if (selectedMedia) {
             setFeaturedImage(
-                `http://localhost:5000${selectedMedia.file_url}`
+                `${API_URL}${selectedMedia.file_url}`
             );
 
             if (
@@ -113,7 +114,7 @@ function CreateNews() {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/news",
+                `${API_URL}/api/news`,
                 {
                     method: "POST",
 

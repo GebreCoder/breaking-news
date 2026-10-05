@@ -20,164 +20,140 @@ import "./App.css";
 import "./styles/language.css";
 
 function App() {
-    return (
-        <BrowserRouter>
-            <Routes>
-
-                {/* =========================
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* =========================
                     PUBLIC WEBSITE
                 ========================== */}
 
-                <Route
-                    path="/"
-                    element={<HomePage />}
-                />
+        <Route path="/" element={<HomePage />} />
 
-                <Route
-                    path="/news/:slug"
-                    element={<NewsArticle />}
-                />
+        <Route path="/news/:slug" element={<NewsArticle />} />
 
-                <Route
-                    path="/category/:slug"
-                    element={<CategoryNews />}
-                />
+        <Route path="/category/:slug" element={<CategoryNews />} />
 
-                <Route
-                    path="/search"
-                    element={<SearchNews />}
-                />
+        <Route path="/search" element={<SearchNews />} />
 
-
-                {/* =========================
+        {/* =========================
                     ADMIN AUTHENTICATION
                 ========================== */}
 
-                <Route
-                    path="/admin/login"
-                    element={<AdminLogin />}
-                />
-                <Route
-    path="/admin/users"
-    element={
-        <ProtectedRoute>
-            <AdminUsers />
-        </ProtectedRoute>
-    }
-/>
-<Route
-    path="/admin/audit-logs"
-    element={
-        <ProtectedRoute>
-            <AdminAuditLog />
-        </ProtectedRoute>
-    }
-/>
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute>
+              <AdminUsers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/audit-logs"
+          element={
+            <ProtectedRoute>
+              <AdminAuditLog />
+            </ProtectedRoute>
+          }
+        />
 
-
-                {/* =========================
+        {/* =========================
                     ADMIN DASHBOARD
                 ========================== */}
 
-                <Route
-                    path="/admin"
-                    element={
-                        <ProtectedRoute>
-                            <AdminDashboard />
-                        </ProtectedRoute>
-                    }
-                />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
 
-
-                {/* =========================
+        {/* =========================
                     NEWS MANAGEMENT
                 ========================== */}
 
-                <Route
-                    path="/admin/news"
-                    element={
-                        <ProtectedRoute>
-                            <AdminNews />
-                        </ProtectedRoute>
-                    }
-                />
+        <Route
+          path="/admin/news"
+          element={
+            <ProtectedRoute>
+              <AdminNews />
+            </ProtectedRoute>
+          }
+        />
 
-                <Route
-                    path="/admin/news/create"
-                    element={
-                        <ProtectedRoute>
-                            <CreateNews />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/news/edit/:id"
-                    element={
-                       <ProtectedRoute>
-                           <EditNews />
-                       </ProtectedRoute>
-                    }
-               />
+        <Route
+          path="/admin/news/create"
+          element={
+            <ProtectedRoute>
+              <CreateNews />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/news/edit/:id"
+          element={
+            <ProtectedRoute>
+              <EditNews />
+            </ProtectedRoute>
+          }
+        />
 
-
-                {/* =========================
+        {/* =========================
                     CATEGORY MANAGEMENT
                 ========================== */}
 
-                <Route
-                    path="/admin/categories"
-                    element={
-                        <ProtectedRoute>
-                            <AdminCategories />
-                        </ProtectedRoute>
-                    }
-                />
+        <Route
+          path="/admin/categories"
+          element={
+            <ProtectedRoute>
+              <AdminCategories />
+            </ProtectedRoute>
+          }
+        />
 
-
-                {/* =========================
+        {/* =========================
                     BREAKING NEWS
                 ========================== */}
 
-                <Route
-                    path="/admin/breaking-news"
-                    element={
-                        <ProtectedRoute>
-                            <AdminBreakingNews />
-                        </ProtectedRoute>
-                    }
-                />
+        <Route
+          path="/admin/breaking-news"
+          element={
+            <ProtectedRoute>
+              <AdminBreakingNews />
+            </ProtectedRoute>
+          }
+        />
 
-
-                {/* =========================
+        {/* =========================
                     MEDIA
                 ========================== */}
 
-                <Route
-                    path="/admin/media"
-                    element={
-                        <ProtectedRoute>
-                            <AdminMedia />
-                        </ProtectedRoute>
-                    }
-                />
+        <Route
+          path="/admin/media"
+          element={
+            <ProtectedRoute>
+              <AdminMedia />
+            </ProtectedRoute>
+          }
+        />
 
-
-                {/* =========================
+        {/* =========================
                     SITE SETTINGS
                 ========================== */}
 
-                <Route
-                    path="/admin/settings"
-                    element={
-                        <ProtectedRoute>
-                            <AdminSiteSettings />
-                        </ProtectedRoute>
-                    }
-                />
-
-            </Routes>
-        </BrowserRouter>
-    );
+        <Route
+          path="/admin/settings"
+          element={
+            <ProtectedRoute>
+              <AdminSiteSettings />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;

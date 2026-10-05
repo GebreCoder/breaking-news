@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useEffectEvent, useState } from "react";
+import { API_URL } from "../api";
 import AdminLayout from "../components/AdminLayout";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import LanguageToggle from "../components/LanguageToggle";
@@ -27,7 +28,7 @@ function AdminCategories() {
     const loadCategories = async () => {
         try {
             const response = await fetch(
-                "http://localhost:5000/api/categories/admin",
+                `${API_URL}/api/categories/admin`,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("adminToken")}`
@@ -76,8 +77,8 @@ function AdminCategories() {
             const isEditing = Boolean(editingCategory);
             const response = await fetch(
                 isEditing
-                    ? `http://localhost:5000/api/categories/${editingCategory.category_id}`
-                    : "http://localhost:5000/api/categories",
+                    ? `${API_URL}/api/categories/${editingCategory.category_id}`
+                    : `${API_URL}/api/categories`,
                 {
                     method: isEditing ? "PUT" : "POST",
                     headers: {
@@ -185,7 +186,7 @@ function AdminCategories() {
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/categories/${category.category_id}`,
+                `${API_URL}/api/categories/${category.category_id}`,
                 {
                     method: "DELETE",
                     headers: {
@@ -216,7 +217,7 @@ function AdminCategories() {
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/categories/${category.category_id}/status`,
+                `${API_URL}/api/categories/${category.category_id}/status`,
                 {
                     method: "PATCH",
                     headers: {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import { API_URL } from "../api";
 import BreakingBar from "../components/BreakingBar";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
@@ -31,11 +32,11 @@ function CategoryNews() {
                     breakingResponse,
                 ] = await Promise.all([
                     fetch(
-                        `http://localhost:5000/api/categories/${slug}`
+                        `${API_URL}/api/categories/${slug}`
                     ),
-                    fetch("http://localhost:5000/api/news"),
-                    fetch("http://localhost:5000/api/categories"),
-                    fetch("http://localhost:5000/api/breaking-news/active"),
+                    fetch(`${API_URL}/api/news`),
+                    fetch(`${API_URL}/api/categories`),
+                    fetch(`${API_URL}/api/breaking-news/active`),
                 ]);
 
                 if (!categoryResponse.ok) {
